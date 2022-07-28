@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Windows.Data;
 using TwitterSharp.Response.RStream;
 using TwitterSharp.Response.RTweet;
@@ -19,249 +18,249 @@ internal class MainWindowViewModel : BindableBaseLight
     private Controller _controller = new();
     public DelegateCommand<StreamInfo> DeleteRuleCommand { get; set; }
 
+    private string _bearerToken = ConfigHelper.GetValue(nameof(BearerToken), Environment.GetEnvironmentVariable("TWITTER_TOKEN"));
+
+    public string BearerToken
+    {
+        get => _bearerToken;
+        set => ConfigHelper.SetValue(ref _bearerToken, value);
+    }
+
     #region Search Expression
     
-    private string _keyword;
+    private string _keyword = ConfigHelper.GetValue(nameof(Keyword), String.Empty);
     [IsExpressionProperty]
     public string Keyword
     {
         get => _keyword;
-        set => SetProperty(ref _keyword, value);
+        set => ConfigHelper.SetValue(ref _keyword, value);
     }
 
-    private string _hashtag;
+    private string _hashtag = ConfigHelper.GetValue(nameof(Hashtag), "Anime");
     [IsExpressionProperty]
     public string Hashtag
     {
         get => _hashtag;
-        set => SetProperty(ref _hashtag, value);
+        set => ConfigHelper.SetValue(ref _hashtag, value);
     }
 
-    private string _mention;
+    private string _mention = ConfigHelper.GetValue(nameof(Mention), String.Empty);
     [IsExpressionProperty]
     public string Mention
     {
         get => _mention;
-        set => SetProperty(ref _mention, value);
+        set => ConfigHelper.SetValue(ref _mention, value);
     }
 
-    private string _cashtag;
+    private string _cashtag = ConfigHelper.GetValue(nameof(Cashtag), String.Empty);
     [IsExpressionProperty]
     public string Cashtag
     {
         get => _cashtag;
-        set => SetProperty(ref _cashtag, value);
+        set => ConfigHelper.SetValue(ref _cashtag, value);
     }
 
-    private string _author;
+    private string _author = ConfigHelper.GetValue(nameof(Author), String.Empty);
     [IsExpressionProperty]
     public string Author
     {
         get => _author;
-        set => SetProperty(ref _author, value);
+        set => ConfigHelper.SetValue(ref _author, value);
     }
 
-    private string _recipient;
+    private string _recipient = ConfigHelper.GetValue(nameof(Recipient), String.Empty);
     [IsExpressionProperty]
     public string Recipient
     {
         get => _recipient;
-        set => SetProperty(ref _recipient, value);
+        set => ConfigHelper.SetValue(ref _recipient, value);
     }
 
-    private string _url;
+    private string _url = ConfigHelper.GetValue(nameof(Url), String.Empty);
     [IsExpressionProperty]
     public string Url
     {
         get => _url;
-        set => SetProperty(ref _url, value);
+        set => ConfigHelper.SetValue(ref _url, value);
     }
 
-    private string _retweet;
+    private string _retweet = ConfigHelper.GetValue(nameof(Retweet), String.Empty);
     [IsExpressionProperty]
     public string Retweet
     {
         get => _retweet;
-        set => SetProperty(ref _retweet, value);
+        set => ConfigHelper.SetValue(ref _retweet, value);
     }
 
-    private string _context;
+    private string _context = ConfigHelper.GetValue(nameof(Context), String.Empty);
     [IsExpressionProperty]
     public string Context
     {
         get => _context;
-        set => SetProperty(ref _context, value);
+        set => ConfigHelper.SetValue(ref _context, value);
     }
 
-    private string _entity;
+    private string _entity = ConfigHelper.GetValue(nameof(Entity), String.Empty);
     [IsExpressionProperty]
     public string Entity
     {
         get => _entity;
-        set => SetProperty(ref _entity, value);
+        set => ConfigHelper.SetValue(ref _entity, value);
     }
 
-    private string _conversionId;
+    private string _conversionId = ConfigHelper.GetValue(nameof(ConversionId), String.Empty);
     [IsExpressionProperty]
     public string ConversionId
     {
         get => _conversionId;
-        set => SetProperty(ref _conversionId, value);
+        set => ConfigHelper.SetValue(ref _conversionId, value);
     }
 
-    private string _bio;
+    private string _bio = ConfigHelper.GetValue(nameof(Bio), String.Empty);
     [IsExpressionProperty]
     public string Bio
     {
         get => _bio;
-        set => SetProperty(ref _bio, value);
+        set => ConfigHelper.SetValue(ref _bio, value);
     }
 
-    private string _bioLocation;
+    private string _bioLocation = ConfigHelper.GetValue(nameof(BioLocation), String.Empty);
     [IsExpressionProperty]
     public string BioLocation
     {
         get => _bioLocation;
-        set => SetProperty(ref _bioLocation, value);
+        set => ConfigHelper.SetValue(ref _bioLocation, value);
     }
 
-    private string _place;
+    private string _place = ConfigHelper.GetValue(nameof(Place), String.Empty);
     [IsExpressionProperty]
     public string Place
     {
         get => _place;
-        set => SetProperty(ref _place, value);
+        set => ConfigHelper.SetValue(ref _place, value);
     }
 
-    private string _placeCountry;
+    private string _placeCountry = ConfigHelper.GetValue(nameof(PlaceCountry), String.Empty);
     [IsExpressionProperty]
     public string PlaceCountry
     {
         get => _placeCountry;
-        set => SetProperty(ref _placeCountry, value);
+        set => ConfigHelper.SetValue(ref _placeCountry, value);
     }
 
-    private bool? _isRetweet;
+    private bool? _isRetweet = ConfigHelper.GetValue(nameof(IsRetweet), false);
     [IsExpressionProperty]
     public bool? IsRetweet
     {
         get => _isRetweet;
-        set => SetProperty(ref _isRetweet, value);
+        set => ConfigHelper.SetValue(ref _isRetweet, value);
     }
 
-    private bool? _isReply;
+    private bool? _isReply = ConfigHelper.GetValue(nameof(IsReply), (bool?)null);
     [IsExpressionProperty]
     public bool? IsReply
     {
         get => _isReply;
-        set => SetProperty(ref _isReply, value);
+        set => ConfigHelper.SetValue(ref _isReply, value);
     }
 
-    private bool? _IsQuote;
+    private bool? _isQuote = ConfigHelper.GetValue(nameof(IsQuote), (bool?)null);
     [IsExpressionProperty]
     public bool? IsQuote
     {
-        get => _IsQuote;
-        set => SetProperty(ref _IsQuote, value);
+        get => _isQuote;
+        set => ConfigHelper.SetValue(ref _isQuote, value);
     }
 
-    private bool? _IsVerified;
+    private bool? _isVerified = ConfigHelper.GetValue(nameof(IsVerified), true);
     [IsExpressionProperty]
     public bool? IsVerified
     {
-        get => _IsVerified;
-        set => SetProperty(ref _IsVerified, value);
+        get => _isVerified;
+        set => ConfigHelper.SetValue(ref _isVerified, value);
     }
 
-    private bool? _isNotNullcast;
+    private bool? _isNotNullcast = ConfigHelper.GetValue(nameof(IsNotNullcast), (bool?)null);
     [IsExpressionProperty]
     public bool? IsNotNullcast
     {
         get => _isNotNullcast;
-        set => SetProperty(ref _isNotNullcast, value);
+        set => ConfigHelper.SetValue(ref _isNotNullcast, value);
     }
 
-    private bool? _hasHashtags;
+    private bool? _hasHashtags = ConfigHelper.GetValue(nameof(HasHashtags), (bool?)null);
     [IsExpressionProperty]
     public bool? HasHashtags
     {
         get => _hasHashtags;
-        set => SetProperty(ref _hasHashtags, value);
+        set => ConfigHelper.SetValue(ref _hasHashtags, value);
     }
 
-    private bool? _hasCashtags;
+    private bool? _hasCashtags = ConfigHelper.GetValue(nameof(HasCashtags), (bool?)null);
     [IsExpressionProperty]
     public bool? HasCashtags
     {
         get => _hasCashtags;
-        set => SetProperty(ref _hasCashtags, value);
+        set => ConfigHelper.SetValue(ref _hasCashtags, value);
     }
 
-    private bool? _hasLinks;
+    private bool? _hasLinks = ConfigHelper.GetValue(nameof(HasLinks), (bool?)null);
     [IsExpressionProperty]
     public bool? HasLinks
     {
         get => _hasLinks;
-        set => SetProperty(ref _hasLinks, value);
+        set => ConfigHelper.SetValue(ref _hasLinks, value);
     }
 
-    private bool? _hasMentions;
+    private bool? _hasMentions = ConfigHelper.GetValue(nameof(HasMentions), (bool?)null);
     [IsExpressionProperty]
     public bool? HasMentions
     {
         get => _hasMentions;
-        set => SetProperty(ref _hasMentions, value);
+        set => ConfigHelper.SetValue(ref _hasMentions, value);
     }
 
-    private bool? _hasMedia;
+    private bool? _hasMedia = ConfigHelper.GetValue(nameof(HasMedia), (bool?)null);
     [IsExpressionProperty]
     public bool? HasMedia
     {
         get => _hasMedia;
-        set => SetProperty(ref _hasMedia, value);
+        set => ConfigHelper.SetValue(ref _hasMedia, value);
     }
 
-    private bool? _hasImages;
+    private bool? _hasImages = ConfigHelper.GetValue(nameof(HasImages), (bool?)null);
     [IsExpressionProperty]
     public bool? HasImages
     {
         get => _hasImages;
-        set => SetProperty(ref _hasImages, value);
+        set => ConfigHelper.SetValue(ref _hasImages, value);
     }
 
-    private bool? _hasVideos;
+    private bool? _hasVideos = ConfigHelper.GetValue(nameof(HasVideos), (bool?)null);
     [IsExpressionProperty]
     public bool? HasVideos
     {
         get => _hasVideos;
-        set => SetProperty(ref _hasVideos, value);
+        set => ConfigHelper.SetValue(ref _hasVideos, value);
     }
 
-    private bool? _hasGeo;
+    private bool? _hasGeo = ConfigHelper.GetValue(nameof(HasGeo), (bool?)null);
     [IsExpressionProperty]
     public bool? HasGeo
     {
         get => _hasGeo;
-        set => SetProperty(ref _hasGeo, value);
+        set => ConfigHelper.SetValue(ref _hasGeo, value);
     }
 
-    private int _sample;
-    [IsExpressionProperty]
-    public int Sample
-    {
-        get => _sample;
-        set => SetProperty(ref _sample, value);
-    }
-
-    private string _lang;
+    private string _lang = ConfigHelper.GetValue(nameof(Lang), "ko,jp,en");
     [IsExpressionProperty]
     public string Lang
     {
         get => _lang;
-        set => SetProperty(ref _lang, value);
+        set => ConfigHelper.SetValue(ref _lang, value);
     }
 
-    #endregion
+    #endregion Search Expression
 
     private bool _updateFilterNeeded;
 
