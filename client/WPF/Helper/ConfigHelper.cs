@@ -27,14 +27,19 @@ public static class ConfigHelper
         }
     }
 
-    public static void SetValue<T>(ref T outValue, T value, [CallerMemberName] string propertyName = "")
+    public static void SetValue<T>(ref T outValue, T value, [CallerMemberName] string propertyName = "", Action propertyChangedAction = null)
     {
         var filePath = $"{GetMainFolder()}{propertyName}.json";
 
         string jsonString = JsonSerializer.Serialize<T>(value);
         File.WriteAllText(filePath, jsonString);
 
+        var equal = (outValue != null && !outValue.Equals(value)) || (outValue == null && value != null);
+
         outValue = value;
+
+        if(equal && propertyChangedAction != null)
+            propertyChangedAction.Invoke();
     }
 
     public static string GetMainFolder()

@@ -5,8 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModels="clr-namespace:TwitterSharp.WpfClient.ViewModels"
         xmlns:helper="clr-namespace:TwitterSharp.WpfClient.Helper"
+        xmlns:system="clr-namespace:System;assembly=System.Runtime"
         mc:Ignorable="d"
-        Title="Tweet Dashboard" Height="600" Width="1000"
+        Title="Tweet Dashboard" Height="800" Width="1000"
         d:DataContext="{d:DesignInstance viewModels:MainWindowViewModel}">
     <Window.Resources>
         <FrameworkElement x:Key="Proxy" DataContext="{Binding}"/>
@@ -38,17 +39,24 @@
 
         <Style TargetType="CheckBox" x:Key="ThreeStateCheckBoxStyle">
             <Setter Property="IsThreeState" Value="True"/>
-            <Setter Property="Margin" Value="5 0"/>
+            <Setter Property="Margin" Value="0 0 5 0"/>
         </Style>
         
         <SolidColorBrush Color="Gray" x:Key="GreyBrush" />
         <SolidColorBrush Color="Red" x:Key="RedBrush" />
 
+        <system:Double x:Key="Opacity">0.3</system:Double>
+
+        <SolidColorBrush Color="Black" x:Key="BearerBrush"></SolidColorBrush>
         <SolidColorBrush Color="Purple" x:Key="GetRecentBrush"></SolidColorBrush>
+        <SolidColorBrush Color="Purple" Opacity="{StaticResource Opacity}" x:Key="GetRecentTransparentBrush"></SolidColorBrush>
         <SolidColorBrush Color="DarkOliveGreen" x:Key="StartStreamBrush"></SolidColorBrush>
+        <SolidColorBrush Color="DarkOliveGreen" Opacity="{StaticResource Opacity}" x:Key="StartStreamTransparentBrush"></SolidColorBrush>
         <SolidColorBrush Color="DarkBlue" x:Key="GetTweetByIdBrush"></SolidColorBrush>
+        <SolidColorBrush Color="DarkBlue" Opacity="{StaticResource Opacity}" x:Key="GetTweetByIdTransparentBrush"></SolidColorBrush>
         <SolidColorBrush Color="DarkRed" x:Key="GetTweetsFromUserBrush"></SolidColorBrush>
-        <SolidColorBrush Color="DarkCyan" x:Key="GetTweetsFromXBrush"></SolidColorBrush>
+        <SolidColorBrush Color="DarkRed" Opacity="{StaticResource Opacity}" x:Key="GetTweetsFromUserTransparentBrush"></SolidColorBrush>
+        <!-- <SolidColorBrush Color="DarkCyan" x:Key="GetTweetsFromXBrush"></SolidColorBrush> -->
 
         <helper:EmptyStringToVisibilityConverter  x:Key="EmptyStringToVisibilityConverter" />
         <helper:BooleanToBrushConverter  x:Key="BooleanToBrushConverter" FalseColor="{StaticResource RedBrush}" TrueColor="{StaticResource GreyBrush}" />
@@ -56,6 +64,7 @@
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -69,10 +78,11 @@
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <ContentControl Visibility="Collapsed" Content="{StaticResource Proxy}"/>
-        <Grid Grid.Row="0" Grid.ColumnSpan="7">
+        <Grid Grid.Row="0" Grid.ColumnSpan="8">
             <!-- <StackPanel Orientation="Vertical" Grid.Column="2"> -->
             <!--     <TextBlock Text="Baerer Token"/> -->
             <!--     <TextBox Text="{Binding BearerToken}"/> -->
@@ -82,10 +92,58 @@
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <TextBlock Text="Baerer Token" FontSize="16" FontWeight="Bold" Grid.Column="0" Margin="5 5 5 20"/>
-            <TextBox Text="{Binding BearerToken}" Grid.Column="1" FontSize="14" VerticalAlignment="Center" Margin="5 5 5 20"/>
+            <TextBlock Text="Baerer Token" FontSize="16" FontWeight="Bold" Grid.Column="0" Margin="5 5 5 0"/>
+            <TextBox Text="{Binding BearerToken, UpdateSourceTrigger=LostFocus}" KeyUp="BearerToken_KeyEnterUpdate" Grid.Column="1" FontSize="14" VerticalAlignment="Center" Margin="5 5 5 0"/>
         </Grid>
-        <Grid Grid.Row="1">
+        <Grid Grid.Row="1" Grid.Column="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="10" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Rectangle Height="10" Fill="{StaticResource BearerBrush}" Grid.Column="1" Margin="5 10 0 0"/>
+            <Rectangle Height="10" Fill="{StaticResource BearerBrush}" Grid.Column="2" Margin="0 10 0 0"/>
+            <Rectangle Width="10" Fill="{StaticResource BearerBrush}" Grid.Column="1" Grid.Row="1"/>
+            <Polygon Points="0,0 20,0, 10,10" StrokeThickness="0" Fill="{StaticResource BearerBrush}" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Center"/>
+        </Grid>
+        <Grid Grid.Row="1" Grid.Column="3" Grid.ColumnSpan="3">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <!-- <RowDefinition Height="Auto" /> -->
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Rectangle Height="10" Width="10" Fill="{StaticResource BearerBrush}" Grid.Row="0" Grid.Column="1"  Margin="0 0 0 0"/>
+            <Rectangle Height="10" Fill="{StaticResource BearerBrush}" Grid.Row="1" Grid.ColumnSpan="3" Grid.Column="0" Margin="0 0 0 0"/>
+            <!-- <Rectangle Width="10" Fill="{StaticResource BearerBrush}" Grid.Column="1" Grid.Row="1"/> -->
+            <!-- <Polygon Points="0,0 20,0, 10,10" StrokeThickness="0" Fill="{StaticResource BearerBrush}" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Center"/> -->
+        </Grid>
+        <Grid Grid.Row="1" Grid.Column="6">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="10" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Rectangle Height="10" Fill="{StaticResource BearerBrush}" Grid.Column="1" Margin="0 10 5 0"/>
+            <Rectangle Height="10" Fill="{StaticResource BearerBrush}" Grid.Column="0" Margin="0 10 0 0"/>
+            <Rectangle Width="10" Fill="{StaticResource BearerBrush}" Grid.Column="1" Grid.Row="1"/>
+            <Polygon Points="0,0 20,0, 10,10" StrokeThickness="0" Fill="{StaticResource BearerBrush}" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Center"/>
+        </Grid>
+        <Grid Grid.Row="2"> <!-- Expression -->
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"></ColumnDefinition>
                 <ColumnDefinition Width="*"></ColumnDefinition>
@@ -93,102 +151,177 @@
                 <ColumnDefinition Width="Auto"></ColumnDefinition>
             </Grid.ColumnDefinitions>
             <TextBlock Text="Expression" Grid.Column="0" Style="{StaticResource VerticalHeaderTextBlock}"/>
-            <StackPanel Orientation="Vertical" Grid.Column="1">
-                <StackPanel Orientation="Horizontal">
-                    <StackPanel Style="{StaticResource StackPanelVerticalStyle}" Margin="0 5 5 5">
-                        <TextBlock Text="Keyword" Style="{StaticResource TextBlockVerticalStyle}" ToolTip="Keywords separated by , (AND operator)"/>
-                        <TextBox Text="{Binding Keyword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBoxVerticalStyle}"/>
+            <Border Grid.Column="1" BorderThickness="0.5" Padding="5" BorderBrush="Black" Margin="0 0 0 10">
+                <StackPanel Orientation="Vertical" >
+                    <StackPanel Orientation="Horizontal">
+                        <StackPanel Style="{StaticResource StackPanelVerticalStyle}" Margin="0 5 5 5">
+                            <TextBlock Text="Keyword" Style="{StaticResource TextBlockVerticalStyle}" ToolTip="Keywords separated by , (AND operator)"/>
+                            <TextBox Text="{Binding Keyword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBoxVerticalStyle}"/>
+                        </StackPanel>
+
+                        <StackPanel Style="{StaticResource StackPanelVerticalStyle}">
+                            <TextBlock Text="Hashtag" Style="{StaticResource TextBlockVerticalStyle}" ToolTip="Hashtags separated by , (AND operator)"/>
+                            <TextBox Text="{Binding Hashtag, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBoxVerticalStyle}">
+                            </TextBox>
+                        </StackPanel>
+                        <StackPanel Style="{StaticResource StackPanelVerticalStyle}">
+                            <TextBlock Text="Mentions" Style="{StaticResource TextBlockVerticalStyle}" ToolTip="Mentions separated by , (AND operator)"/>
+                            <TextBox Text="{Binding Mention, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBoxVerticalStyle}">
+                            </TextBox>
+                        </StackPanel>
+                        <StackPanel Style="{StaticResource StackPanelVerticalStyle}">
+                            <TextBlock Text="Language" Style="{StaticResource TextBlockVerticalStyle}" ToolTip="Languages separated by , (OR operator)"/>
+                            <TextBox Text="{Binding Lang, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBoxVerticalStyle}">
+                            </TextBox>
+                        </StackPanel>
+                        <!-- <Grid> -->
+                        <!--     <Grid.ColumnDefinitions> -->
+                        <!--         <ColumnDefinition Width="Auto"/> -->
+                        <!--         <ColumnDefinition Width="Auto"/> -->
+                        <!--     </Grid.ColumnDefinitions> -->
+                        <!--     <Grid.RowDefinitions> -->
+                        <!--         <RowDefinition Height="Auto"/> -->
+                        <!--         <RowDefinition Height="Auto"/> -->
+                        <!--         <RowDefinition Height="Auto"/> -->
+                        <!--         <RowDefinition Height="Auto"/> -->
+                        <!--         <RowDefinition Height="Auto"/> -->
+                        <!--         <RowDefinition Height="Auto"/> -->
+                        <!--         <RowDefinition Height="Auto"/> -->
+                        <!--         <RowDefinition Height="Auto"/> -->
+                        <!--         <RowDefinition Height="Auto"/> -->
+                        <!--         <RowDefinition Height="Auto"/> -->
+                        <!--         <RowDefinition Height="Auto"/> -->
+                        <!--         <RowDefinition Height="Auto"/> -->
+                        <!--         <RowDefinition Height="Auto"/> -->
+                        <!--     </Grid.RowDefinitions> -->
+                        <!-- -->
+                        <!--     <TextBlock Grid.Column="0" Grid.Row="0" Text="IsRetweet"/> -->
+                        <!--     <CheckBox Grid.Column="1" Grid.Row="0" IsChecked="{Binding IsRetweet}" Style="{StaticResource ThreeStateCheckBoxStyle}" /> -->
+                        <!-- -->
+                        <!--     <TextBlock Grid.Column="0" Grid.Row="1" Text="IsReply"/> -->
+                        <!--     <CheckBox Grid.Column="1" Grid.Row="1" IsChecked="{Binding IsReply}" Style="{StaticResource ThreeStateCheckBoxStyle}"/> -->
+                        <!-- -->
+                        <!--     <TextBlock Grid.Column="0" Grid.Row="2" Text="IsQuote"/> -->
+                        <!--     <CheckBox Grid.Column="1" Grid.Row="2" IsChecked="{Binding IsQuote}" Style="{StaticResource ThreeStateCheckBoxStyle}"/> -->
+                        <!-- -->
+                        <!--     <TextBlock Grid.Column="0" Grid.Row="3" Text="IsVerified"/> -->
+                        <!--     <CheckBox Grid.Column="1" Grid.Row="3" IsChecked="{Binding IsVerified}" Style="{StaticResource ThreeStateCheckBoxStyle}"/> -->
+                        <!-- -->
+                        <!--     <TextBlock Grid.Column="0" Grid.Row="5" Text="HasHashtags"/> -->
+                        <!--     <CheckBox Grid.Column="1" Grid.Row="5" IsChecked="{Binding HasHashtags}" Style="{StaticResource ThreeStateCheckBoxStyle}"/> -->
+                        <!-- -->
+                        <!--     <TextBlock Grid.Column="0" Grid.Row="7" Text="HasLinks"/> -->
+                        <!--     <CheckBox Grid.Column="1" Grid.Row="7" IsChecked="{Binding HasLinks}" Style="{StaticResource ThreeStateCheckBoxStyle}"/> -->
+                        <!-- -->
+                        <!--     <TextBlock Grid.Column="0" Grid.Row="8" Text="HasMentions"/> -->
+                        <!--     <CheckBox Grid.Column="1" Grid.Row="8" IsChecked="{Binding HasMentions}" Style="{StaticResource ThreeStateCheckBoxStyle}"/> -->
+                        <!-- -->
+                        <!--     <TextBlock Grid.Column="0" Grid.Row="9" Text="HasMedia"/> -->
+                        <!--     <CheckBox Grid.Column="1" Grid.Row="9" IsChecked="{Binding HasMedia}" Style="{StaticResource ThreeStateCheckBoxStyle}"/> -->
+                        <!-- -->
+                        <!--     <TextBlock Grid.Column="0" Grid.Row="10" Text="HasImages"/> -->
+                        <!--     <CheckBox Grid.Column="1" Grid.Row="10" IsChecked="{Binding HasImages}" Style="{StaticResource ThreeStateCheckBoxStyle}"/> -->
+                        <!-- -->
+                        <!--     <TextBlock Grid.Column="0" Grid.Row="11" Text="HasVideos"/> -->
+                        <!--     <CheckBox Grid.Column="1" Grid.Row="11" IsChecked="{Binding HasVideos}" Style="{StaticResource ThreeStateCheckBoxStyle}"/> -->
+                        <!-- -->
+                        <!-- </Grid> -->
                     </StackPanel>
 
-                    <StackPanel Style="{StaticResource StackPanelVerticalStyle}">
-                        <TextBlock Text="Hashtag" Style="{StaticResource TextBlockVerticalStyle}" ToolTip="Hashtags separated by , (AND operator)"/>
-                        <TextBox Text="{Binding Hashtag, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBoxVerticalStyle}">
-                        </TextBox>
-                    </StackPanel>
-                    <StackPanel Style="{StaticResource StackPanelVerticalStyle}">
-                        <TextBlock Text="Mentions" Style="{StaticResource TextBlockVerticalStyle}" ToolTip="Mentions separated by , (AND operator)"/>
-                        <TextBox Text="{Binding Mention, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBoxVerticalStyle}">
-                        </TextBox>
-                    </StackPanel>
-                    <StackPanel Style="{StaticResource StackPanelVerticalStyle}">
-                        <TextBlock Text="Language" Style="{StaticResource TextBlockVerticalStyle}" ToolTip="Languages separated by , (OR operator)"/>
-                        <TextBox Text="{Binding Lang, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBoxVerticalStyle}">
-                        </TextBox>
-                    </StackPanel>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
+                        <Grid Margin="5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                        
+                            <TextBlock Grid.Column="1" Grid.Row="0" Text="IsRetweet"/>
+                            <CheckBox Grid.Column="0" Grid.Row="0" IsChecked="{Binding IsRetweet}" Style="{StaticResource ThreeStateCheckBoxStyle}" />
+                        
+                            <TextBlock Grid.Column="1" Grid.Row="1" Text="IsReply"/>
+                            <CheckBox Grid.Column="0" Grid.Row="1" IsChecked="{Binding IsReply}" Style="{StaticResource ThreeStateCheckBoxStyle}"/>
+                        
+                            <TextBlock Grid.Column="1" Grid.Row="2" Text="IsQuote"/>
+                            <CheckBox Grid.Column="0" Grid.Row="2" IsChecked="{Binding IsQuote}" Style="{StaticResource ThreeStateCheckBoxStyle}"/>
+                        
+                            <TextBlock Grid.Column="3" Grid.Row="0" Text="IsVerified"/>
+                            <CheckBox Grid.Column="2" Grid.Row="0" IsChecked="{Binding IsVerified}" Style="{StaticResource ThreeStateCheckBoxStyle}"/>
+                        
+                            <TextBlock Grid.Column="3" Grid.Row="1" Text="HasHashtags"/>
+                            <CheckBox Grid.Column="2" Grid.Row="1" IsChecked="{Binding HasHashtags}" Style="{StaticResource ThreeStateCheckBoxStyle}"/>
+                        
+                            <TextBlock Grid.Column="3" Grid.Row="2" Text="HasLinks"/>
+                            <CheckBox Grid.Column="2" Grid.Row="2" IsChecked="{Binding HasLinks}" Style="{StaticResource ThreeStateCheckBoxStyle}"/>
+                        
+                            <TextBlock Grid.Column="5" Grid.Row="0" Text="HasMentions"/>
+                            <CheckBox Grid.Column="4" Grid.Row="0" IsChecked="{Binding HasMentions}" Style="{StaticResource ThreeStateCheckBoxStyle}"/>
+                        
+                            <!-- <TextBlock Grid.Column="4" Grid.Row="9" Text="HasMedia"/> -->
+                            <!-- <CheckBox Grid.Column="5" Grid.Row="9" IsChecked="{Binding HasMedia}" Style="{StaticResource ThreeStateCheckBoxStyle}"/> -->
+                        
+                            <TextBlock Grid.Column="5" Grid.Row="1" Text="HasImages"/>
+                            <CheckBox Grid.Column="4" Grid.Row="1" IsChecked="{Binding HasImages}" Style="{StaticResource ThreeStateCheckBoxStyle}"/>
+                        
+                            <TextBlock Grid.Column="5" Grid.Row="2" Text="HasVideos"/>
+                            <CheckBox Grid.Column="4" Grid.Row="2" IsChecked="{Binding HasVideos}" Style="{StaticResource ThreeStateCheckBoxStyle}"/>
+                        
+                        </Grid>
 
-                        <TextBlock Grid.Column="0" Grid.Row="0" Text="IsRetweet"/>
-                        <CheckBox Grid.Column="1" Grid.Row="0" IsChecked="{Binding IsRetweet}" Style="{StaticResource ThreeStateCheckBoxStyle}" />
 
-                        <TextBlock Grid.Column="0" Grid.Row="1" Text="IsReply"/>
-                        <CheckBox Grid.Column="1" Grid.Row="1" IsChecked="{Binding IsReply}" Style="{StaticResource ThreeStateCheckBoxStyle}"/>
-
-                        <TextBlock Grid.Column="0" Grid.Row="2" Text="IsQuote"/>
-                        <CheckBox Grid.Column="1" Grid.Row="2" IsChecked="{Binding IsQuote}" Style="{StaticResource ThreeStateCheckBoxStyle}"/>
-
-                        <TextBlock Grid.Column="0" Grid.Row="3" Text="IsVerified"/>
-                        <CheckBox Grid.Column="1" Grid.Row="3" IsChecked="{Binding IsVerified}" Style="{StaticResource ThreeStateCheckBoxStyle}"/>
-
-                        <TextBlock Grid.Column="0" Grid.Row="5" Text="HasHashtags"/>
-                        <CheckBox Grid.Column="1" Grid.Row="5" IsChecked="{Binding HasHashtags}" Style="{StaticResource ThreeStateCheckBoxStyle}"/>
-
-                        <TextBlock Grid.Column="0" Grid.Row="7" Text="HasLinks"/>
-                        <CheckBox Grid.Column="1" Grid.Row="7" IsChecked="{Binding HasLinks}" Style="{StaticResource ThreeStateCheckBoxStyle}"/>
-
-                        <TextBlock Grid.Column="0" Grid.Row="8" Text="HasMentions"/>
-                        <CheckBox Grid.Column="1" Grid.Row="8" IsChecked="{Binding HasMentions}" Style="{StaticResource ThreeStateCheckBoxStyle}"/>
-
-                        <TextBlock Grid.Column="0" Grid.Row="9" Text="HasMedia"/>
-                        <CheckBox Grid.Column="1" Grid.Row="9" IsChecked="{Binding HasMedia}" Style="{StaticResource ThreeStateCheckBoxStyle}"/>
-
-                        <TextBlock Grid.Column="0" Grid.Row="10" Text="HasImages"/>
-                        <CheckBox Grid.Column="1" Grid.Row="10" IsChecked="{Binding HasImages}" Style="{StaticResource ThreeStateCheckBoxStyle}"/>
-
-                        <TextBlock Grid.Column="0" Grid.Row="11" Text="HasVideos"/>
-                        <CheckBox Grid.Column="1" Grid.Row="11" IsChecked="{Binding HasVideos}" Style="{StaticResource ThreeStateCheckBoxStyle}"/>
-
-                    </Grid>
+                    <TextBlock Text="{Binding Error}" Foreground="Red" TextWrapping="Wrap" Visibility="{Binding Error, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
+                    <TextBlock TextWrapping="Wrap">
+                        <Run Text="{Binding ExpressionString, Mode=OneWay}" />
+                        <Run Text="Length: " Foreground="{Binding ExpressionLengthLimit, Converter={StaticResource BooleanToBrushConverter}}"/>
+                        <Run Text="{Binding ExpressionLength, Mode=OneWay}" Foreground="{Binding ExpressionLengthLimit, Converter={StaticResource BooleanToBrushConverter}}"/>
+                    </TextBlock>
                 </StackPanel>
-                <TextBlock Text="{Binding Error}" Foreground="Red" TextWrapping="Wrap" Visibility="{Binding Error, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
-                <TextBlock TextWrapping="Wrap">
-                    <Run Text="{Binding ExpressionString, Mode=OneWay}" />
-                    <Run Text="Length: " Foreground="{Binding ExpressionLengthLimit, Converter={StaticResource BooleanToBrushConverter}}"/>
-                    <Run Text="{Binding ExpressionLength, Mode=OneWay}" Foreground="{Binding ExpressionLengthLimit, Converter={StaticResource BooleanToBrushConverter}}"/>
-                </TextBlock>
-            </StackPanel>
+            </Border>
         </Grid>
-        <Grid Grid.Row="1" Grid.Column="1">
+        <Grid Grid.Row="2" Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="40" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="15"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Rectangle Height="10" Fill="{StaticResource GetRecentBrush}" Grid.Row="0" Grid.Column="0" Margin="5 0 0 0"/>
+            <Polygon Points="0,0 0,20, 10,10" Stroke="{StaticResource GetRecentBrush}" Grid.Row="0" Grid.Column="1" Fill="{StaticResource GetRecentBrush}" HorizontalAlignment="Center"/>
+            <Rectangle Height="10" Fill="{StaticResource StartStreamBrush}" Grid.Row="1" Grid.Column="0" Margin="5 0 0 0"/>
+            <Polygon Points="0,0 0,20, 10,10" Stroke="{StaticResource StartStreamBrush}" Grid.Row="1" Grid.Column="1" Fill="{StaticResource StartStreamBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Grid>
+        <Grid Grid.Row="2" Grid.Column="2"> <!-- Expression buttons -->
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <Button Content="Ger Recent" Grid.Row="0" Margin="5 0 5 0"/>
+            <Button Content="Get Recent" Command="{Binding GetRecentCommand}" Grid.Row="0" Margin="5 0 5 0"/>
             <Button Content="Add Rule" Grid.Row="1" Margin="5 10 5 0"/>
             <Rectangle Width="10" Fill="{StaticResource StartStreamBrush}" Grid.Row="2" Margin="0 5 0 0"/>
             <Polygon Points="0,0 20,0, 10,10" Stroke="{StaticResource StartStreamBrush}" Fill="{StaticResource StartStreamBrush}" Grid.Row="3" HorizontalAlignment="Center"/>
         </Grid>
-        <Grid Grid.Row="1" Grid.Column="2" Grid.RowSpan="3" Margin="0">
+        <Grid Grid.Row="2" Grid.Column="3" Grid.RowSpan="3" Margin="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
@@ -198,7 +331,7 @@
             <Rectangle Width="10" Fill="{StaticResource GetRecentBrush}" Grid.Row="1"/>
             <Polygon Points="0,0 20,0, 10,10" StrokeThickness="0" Fill="{StaticResource GetRecentBrush}" Grid.Row="2" HorizontalAlignment="Center"/>
         </Grid>
-        <Grid Grid.Row="1" Grid.Column="3" Grid.RowSpan="3" Margin="0">
+        <Grid Grid.Row="2" Grid.Column="4" Grid.RowSpan="3" Margin="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
@@ -208,7 +341,7 @@
             <Rectangle Width="10" Fill="{StaticResource GetTweetByIdBrush}" Grid.Row="1"/>
             <Polygon Points="0,0 20,0, 10,10" StrokeThickness="0" Fill="{StaticResource GetTweetByIdBrush}" Grid.Row="2" HorizontalAlignment="Center"/>
         </Grid>
-        <Grid Grid.Row="1" Grid.Column="4" Grid.RowSpan="3" Margin="0">
+        <Grid Grid.Row="2" Grid.Column="5" Grid.RowSpan="3" Margin="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -234,25 +367,29 @@
         <!--     <Rectangle Width="10" Fill="{StaticResource GetTweetsFromXBrush}" Grid.Row="3"/> -->
         <!--     <Polygon Points="0,0 20,0, 10,10" StrokeThickness="0" Fill="{StaticResource GetTweetsFromXBrush}" Grid.Row="4" HorizontalAlignment="Center"/> -->
         <!-- </Grid> -->
-        <Grid Grid.Row="1" Grid.Column="6">
+        <Grid Grid.Row="2" Grid.Column="6">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
             <Button Content="Get Tweet by ID" Grid.Row="0" Margin="5 0 5 0"/>
             <Button Content="Get Tweets From User" Grid.Row="1" Margin="5 10 5 0"/>
             <!-- <Button Content="Get Third bla" Grid.Row="2" Margin="5 10 5 0"/> -->
             <!-- <TextBox Text="{Binding BearerToken}" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" /> -->
-            <TextBox Text="{Binding BearerToken}" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Margin="0 0 5 0"/>
-            <TextBox Text="{Binding BearerToken}" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Margin="0 10 5 0"/>
 
         </Grid>
-        <Grid Grid.Row="2" Grid.ColumnSpan="2">
+        <Grid Grid.Row="2" Grid.Column="7">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <TextBox Text="{Binding GetTweetByIdTweetId}" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Margin="0 0 5 0"/>
+            <TextBox Text="{Binding GetTweetsFromUserUserId}" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Margin="0 10 5 0"/>
+
+        </Grid>
+        <Grid Grid.Row="3" Grid.ColumnSpan="3">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"></ColumnDefinition>
                 <ColumnDefinition Width="*"></ColumnDefinition>
@@ -277,7 +414,7 @@
                 </ListView.View>
             </ListView>
         </Grid>
-        <Grid Grid.Row="2" Grid.Column="6">
+        <Grid Grid.Row="3" Grid.Column="6" Grid.ColumnSpan="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"></ColumnDefinition>
                 <ColumnDefinition Width="*"></ColumnDefinition>
@@ -296,7 +433,7 @@
                 </ListView.View>
             </ListView>
         </Grid>
-        <Grid Grid.Row="3" Grid.Column="1">
+        <Grid Grid.Row="4" Grid.Column="2">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -307,29 +444,46 @@
             <Rectangle Width="10" Fill="{StaticResource StartStreamBrush}" Grid.Row="0" MinHeight="10" Margin="0 5 0 0"/>
             <Polygon Points="0,0 20,0, 10,10" Stroke="{StaticResource StartStreamBrush}" Fill="{StaticResource StartStreamBrush}" Grid.Row="1" HorizontalAlignment="Center"/>
 
-            <Button Content="Start Stream" Grid.Row="2"/>
+            <Button Content="Start Stream" Grid.Row="2" Margin="5 0"/>
             <Rectangle Width="10" Fill="{StaticResource StartStreamBrush}" Grid.Row="3" MinHeight="10" Margin="0 5 0 0"/>
             <Polygon Points="0,0 20,0, 10,10" Stroke="{StaticResource StartStreamBrush}" Fill="{StaticResource StartStreamBrush}" Grid.Row="4" HorizontalAlignment="Center"/>
 
         </Grid>
-        <Grid Grid.Row="4" Grid.ColumnSpan="7">
+        <Grid Grid.Row="5" Grid.ColumnSpan="8">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <TextBlock Text="Tweets" Grid.Column="0" Style="{StaticResource VerticalHeaderTextBlock}"/>
             <ListView ItemsSource="{Binding TweetsCollectionView}" Grid.Column="1" Margin="0 0 5 5">
-
+                <ListView.Resources>
+                    <Style TargetType="{x:Type ListViewItem}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Type}" Value="Stream">
+                                <Setter Property="Background" Value="{StaticResource StartStreamTransparentBrush}" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Type}" Value="Recent">
+                                <Setter Property="Background" Value="{StaticResource GetRecentTransparentBrush}" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Type}" Value="TweetById">
+                                <Setter Property="Background" Value="{StaticResource GetTweetByIdTransparentBrush}" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Type}" Value="TweetsFromUser">
+                                <Setter Property="Background" Value="{StaticResource GetTweetsFromUserTransparentBrush}" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ListView.Resources>
                 <ListView.View>
 
                     <GridView AllowsColumnReorder="true">
-
-                        <GridViewColumn DisplayMemberBinding="{Binding CreatedAt, StringFormat=T}" Header="Time"/>
-                        <GridViewColumn DisplayMemberBinding="{Binding Author.Name}" Header="Name" />
+                        
+                        <GridViewColumn DisplayMemberBinding="{Binding Tweet.CreatedAt, StringFormat=T}" Header="Time"/>
+                        <GridViewColumn DisplayMemberBinding="{Binding Tweet.Author.Name}" Header="Name" />
                         <GridViewColumn Header="Text">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding Path=Text}" TextWrapping="Wrap"/>
+                                    <TextBlock Text="{Binding Path=Tweet.Text}" TextWrapping="Wrap"/>
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>

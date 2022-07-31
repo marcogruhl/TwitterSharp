@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -13,6 +14,7 @@ using TwitterSharp.Request.Option;
 using TwitterSharp.Response;
 using TwitterSharp.Response.RStream;
 using TwitterSharp.Response.RTweet;
+using TwitterSharp.WpfClient.Helper;
 using TwitterSharp.WpfClient.ViewModels;
 
 namespace TwitterSharp.WpfClient;
@@ -21,10 +23,12 @@ internal class Controller : INotifyPropertyChanged, IAsyncDisposable
 {
     private TwitterClient _client { get; set; }
     private Task? _tweetStream { get; set; }
-    private CancellationTokenSource _cancellationTokenSource = new ();
+    private CancellationTokenSource _cancellationTokenSource = new();
     public readonly ObservableCollection<StreamInfo> Rules = new();
-    internal readonly ObservableCollection<Tweet> Tweets = new();
+    internal readonly ObservableCollection<TweetViewModel> Tweets = new();
     public readonly ObservableCollection<RateLimitViewModel> RateLimits = new ();
+
+    public event Action<string> Error;
 
     private bool? _isConnected { get; set; }
     
@@ -58,18 +62,36 @@ internal class Controller : INotifyPropertyChanged, IAsyncDisposable
         UserOption.Protected
     };
 
-    public Controller()
-    {
-        _client = new TwitterClient(Environment.GetEnvironmentVariable("TWITTER_TOKEN"));
-        _client.RateLimitChanged += UpdateRateLimits;
 
+
+    public Controller(Action<string> errorAction)
+    {
+        Error = errorAction;
         Application.Current.Exit += async (_, _) => await DisposeAsync();
-        
-        InitializeAsync();
+        InitializeAsync(ConfigHelper.GetValue("BearerToken", Environment.GetEnvironmentVariable("TWITTER_TOKEN")));
     }
 
-    private async void InitializeAsync()
+    // public async Task RefreshToken(string bearerToken)
+    // {
+    //     await DisposeAsync();
+    //
+    //     _client = new TwitterClient(bearerToken);
+    //     _client.RateLimitChanged += UpdateRateLimits;
+    // }
+
+    public async void InitializeAsync(string bearerToken)
     {
+        if (String.IsNullOrEmpty(bearerToken))
+        {
+            Error.Invoke("Empty BearerToken");
+            return;
+        }
+
+        await DisposeAsync();
+
+        _client = new TwitterClient(bearerToken);
+        _client.RateLimitChanged += UpdateRateLimits;
+
         await RefreshRules();
         await Connect();
     }
@@ -102,7 +124,7 @@ internal class Controller : INotifyPropertyChanged, IAsyncDisposable
 
                     Application.Current.Dispatcher.Invoke(() =>
                     {
-                        Tweets.Add(tweet);
+                        Tweets.Add(new TweetViewModel(tweet, "Stream"));
                         Debug.WriteLine($"From {tweet.Author.Name}: {tweet.Text} (Rules: {string.Join(',', tweet.MatchingRules.Select(x => x.Tag))})");
                     });
                         
@@ -137,16 +159,69 @@ internal class Controller : INotifyPropertyChanged, IAsyncDisposable
 
     private async Task RefreshRules()
     {
-        Rules.Clear();
-
-        var rules = await _client.GetInfoTweetStreamAsync();
-
-        foreach (var rule in rules)
+        try
         {
-            Rules.Add(rule);
+            var rules = await _client.GetInfoTweetStreamAsync();
+
+            Rules.Clear();
+
+            foreach (var rule in rules)
+            {
+                Rules.Add(rule);
+            }
+
+        }
+        catch (Exception e)
+        {
+            Error.Invoke(e.Message);
         }
 
         UpdateRateLimits(new RateLimitViewModel("RulesPerStream", 25 - Rules.Count, 25));
+    }
+
+    internal async Task GetRecentTweets(Rule.Expression expression, int amount = 10)
+    {
+        var searchOptions = new TweetSearchOptions
+        {
+            TweetOptions = _tweetOptions,
+            UserOptions = _userOptions,
+            Limit = amount < 10 ? 10 : amount > 100 ? 100 : amount
+        };
+
+        try
+        {
+            var res = await _client.GetRecentTweets(expression, searchOptions);
+            foreach (var tweet in res)
+            {
+                Tweets.Add(new TweetViewModel(tweet, "Recent"));
+            }
+            
+        }
+        catch (TwitterException e)
+        {
+            Error.Invoke(TwitterExceptionToString(e));
+        }
+    }
+
+    private static string TwitterExceptionToString(TwitterException e)
+    {
+        StringBuilder sb = new();
+
+        sb.AppendLine($"{e.Message} Title: {e.Title} Url: {e.Type}");
+
+        if (e.Errors.Any())
+            foreach (var error in e.Errors)
+            {
+                sb.AppendLine(
+                    $"{error.Title} Value: {error.Value} {(error.Details != null ? $"Details: {String.Join(',', error.Details)}" : error.Message)}");
+            }
+
+        return sb.ToString();
+    }
+
+    internal void ClearTweets()
+    {
+        Tweets.Clear();
     }
 
     private void UpdateRateLimits(object? sender, RateLimit rateLimit)
@@ -201,10 +276,21 @@ internal class Controller : INotifyPropertyChanged, IAsyncDisposable
     {
         IsConnected = false;
 
-        _cancellationTokenSource.Cancel();
+        try
+        {
+            _cancellationTokenSource.Cancel();
+        }
+        catch (ObjectDisposedException e)
+        {
+            // Not throwing
+        }
 
-        _client.RateLimitChanged -= UpdateRateLimits;
-        _client.Dispose();
+
+        if(_client != null)
+        {
+            _client.RateLimitChanged -= UpdateRateLimits;
+            _client.Dispose();
+        }
 
         if (_tweetStream != null)
         {

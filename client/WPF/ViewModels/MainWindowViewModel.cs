@@ -15,15 +15,21 @@ internal class MainWindowViewModel : BindableBaseLight
     public ListCollectionView TweetsCollectionView { get; }
     public ListCollectionView RulesCollectionView { get; }
     public ListCollectionView RateLimitsCollectionView { get; }
-    private Controller _controller = new();
+    private Controller _controller { get; }
     public DelegateCommand<StreamInfo> DeleteRuleCommand { get; set; }
+    public DelegateCommand GetRecentCommand { get; set; }
 
     private string _bearerToken = ConfigHelper.GetValue(nameof(BearerToken), Environment.GetEnvironmentVariable("TWITTER_TOKEN"));
 
     public string BearerToken
     {
         get => _bearerToken;
-        set => ConfigHelper.SetValue(ref _bearerToken, value);
+        set 
+        {
+            Error = String.Empty;
+            ConfigHelper.SetValue(ref _bearerToken, value);
+            _controller.InitializeAsync(_bearerToken);
+        }
     }
 
     #region Search Expression
@@ -33,7 +39,7 @@ internal class MainWindowViewModel : BindableBaseLight
     public string Keyword
     {
         get => _keyword;
-        set => ConfigHelper.SetValue(ref _keyword, value);
+        set => ConfigHelper.SetValue(ref _keyword, value, propertyChangedAction: () => OnPropertyChanged());
     }
 
     private string _hashtag = ConfigHelper.GetValue(nameof(Hashtag), "Anime");
@@ -41,7 +47,7 @@ internal class MainWindowViewModel : BindableBaseLight
     public string Hashtag
     {
         get => _hashtag;
-        set => ConfigHelper.SetValue(ref _hashtag, value);
+        set => ConfigHelper.SetValue(ref _hashtag, value, propertyChangedAction: () => OnPropertyChanged());
     }
 
     private string _mention = ConfigHelper.GetValue(nameof(Mention), String.Empty);
@@ -49,7 +55,7 @@ internal class MainWindowViewModel : BindableBaseLight
     public string Mention
     {
         get => _mention;
-        set => ConfigHelper.SetValue(ref _mention, value);
+        set => ConfigHelper.SetValue(ref _mention, value, propertyChangedAction: () => OnPropertyChanged());
     }
 
     private string _cashtag = ConfigHelper.GetValue(nameof(Cashtag), String.Empty);
@@ -57,7 +63,7 @@ internal class MainWindowViewModel : BindableBaseLight
     public string Cashtag
     {
         get => _cashtag;
-        set => ConfigHelper.SetValue(ref _cashtag, value);
+        set => ConfigHelper.SetValue(ref _cashtag, value, propertyChangedAction: () => OnPropertyChanged());
     }
 
     private string _author = ConfigHelper.GetValue(nameof(Author), String.Empty);
@@ -65,7 +71,7 @@ internal class MainWindowViewModel : BindableBaseLight
     public string Author
     {
         get => _author;
-        set => ConfigHelper.SetValue(ref _author, value);
+        set => ConfigHelper.SetValue(ref _author, value, propertyChangedAction: () => OnPropertyChanged());
     }
 
     private string _recipient = ConfigHelper.GetValue(nameof(Recipient), String.Empty);
@@ -73,7 +79,7 @@ internal class MainWindowViewModel : BindableBaseLight
     public string Recipient
     {
         get => _recipient;
-        set => ConfigHelper.SetValue(ref _recipient, value);
+        set => ConfigHelper.SetValue(ref _recipient, value, propertyChangedAction: () => OnPropertyChanged());
     }
 
     private string _url = ConfigHelper.GetValue(nameof(Url), String.Empty);
@@ -81,7 +87,7 @@ internal class MainWindowViewModel : BindableBaseLight
     public string Url
     {
         get => _url;
-        set => ConfigHelper.SetValue(ref _url, value);
+        set => ConfigHelper.SetValue(ref _url, value, propertyChangedAction: () => OnPropertyChanged());
     }
 
     private string _retweet = ConfigHelper.GetValue(nameof(Retweet), String.Empty);
@@ -89,7 +95,7 @@ internal class MainWindowViewModel : BindableBaseLight
     public string Retweet
     {
         get => _retweet;
-        set => ConfigHelper.SetValue(ref _retweet, value);
+        set => ConfigHelper.SetValue(ref _retweet, value, propertyChangedAction: () => OnPropertyChanged());
     }
 
     private string _context = ConfigHelper.GetValue(nameof(Context), String.Empty);
@@ -97,7 +103,7 @@ internal class MainWindowViewModel : BindableBaseLight
     public string Context
     {
         get => _context;
-        set => ConfigHelper.SetValue(ref _context, value);
+        set => ConfigHelper.SetValue(ref _context, value, propertyChangedAction: () => OnPropertyChanged());
     }
 
     private string _entity = ConfigHelper.GetValue(nameof(Entity), String.Empty);
@@ -105,7 +111,7 @@ internal class MainWindowViewModel : BindableBaseLight
     public string Entity
     {
         get => _entity;
-        set => ConfigHelper.SetValue(ref _entity, value);
+        set => ConfigHelper.SetValue(ref _entity, value, propertyChangedAction: () => OnPropertyChanged());
     }
 
     private string _conversionId = ConfigHelper.GetValue(nameof(ConversionId), String.Empty);
@@ -113,7 +119,7 @@ internal class MainWindowViewModel : BindableBaseLight
     public string ConversionId
     {
         get => _conversionId;
-        set => ConfigHelper.SetValue(ref _conversionId, value);
+        set => ConfigHelper.SetValue(ref _conversionId, value, propertyChangedAction: () => OnPropertyChanged());
     }
 
     private string _bio = ConfigHelper.GetValue(nameof(Bio), String.Empty);
@@ -121,7 +127,7 @@ internal class MainWindowViewModel : BindableBaseLight
     public string Bio
     {
         get => _bio;
-        set => ConfigHelper.SetValue(ref _bio, value);
+        set => ConfigHelper.SetValue(ref _bio, value, propertyChangedAction: () => OnPropertyChanged());
     }
 
     private string _bioLocation = ConfigHelper.GetValue(nameof(BioLocation), String.Empty);
@@ -129,7 +135,7 @@ internal class MainWindowViewModel : BindableBaseLight
     public string BioLocation
     {
         get => _bioLocation;
-        set => ConfigHelper.SetValue(ref _bioLocation, value);
+        set => ConfigHelper.SetValue(ref _bioLocation, value, propertyChangedAction: () => OnPropertyChanged());
     }
 
     private string _place = ConfigHelper.GetValue(nameof(Place), String.Empty);
@@ -137,7 +143,7 @@ internal class MainWindowViewModel : BindableBaseLight
     public string Place
     {
         get => _place;
-        set => ConfigHelper.SetValue(ref _place, value);
+        set => ConfigHelper.SetValue(ref _place, value, propertyChangedAction: () => OnPropertyChanged());
     }
 
     private string _placeCountry = ConfigHelper.GetValue(nameof(PlaceCountry), String.Empty);
@@ -145,7 +151,7 @@ internal class MainWindowViewModel : BindableBaseLight
     public string PlaceCountry
     {
         get => _placeCountry;
-        set => ConfigHelper.SetValue(ref _placeCountry, value);
+        set => ConfigHelper.SetValue(ref _placeCountry, value, propertyChangedAction: () => OnPropertyChanged());
     }
 
     private bool? _isRetweet = ConfigHelper.GetValue(nameof(IsRetweet), false);
@@ -153,7 +159,7 @@ internal class MainWindowViewModel : BindableBaseLight
     public bool? IsRetweet
     {
         get => _isRetweet;
-        set => ConfigHelper.SetValue(ref _isRetweet, value);
+        set => ConfigHelper.SetValue(ref _isRetweet, value, propertyChangedAction: () => OnPropertyChanged());
     }
 
     private bool? _isReply = ConfigHelper.GetValue(nameof(IsReply), (bool?)null);
@@ -161,7 +167,7 @@ internal class MainWindowViewModel : BindableBaseLight
     public bool? IsReply
     {
         get => _isReply;
-        set => ConfigHelper.SetValue(ref _isReply, value);
+        set => ConfigHelper.SetValue(ref _isReply, value, propertyChangedAction: () => OnPropertyChanged());
     }
 
     private bool? _isQuote = ConfigHelper.GetValue(nameof(IsQuote), (bool?)null);
@@ -169,7 +175,7 @@ internal class MainWindowViewModel : BindableBaseLight
     public bool? IsQuote
     {
         get => _isQuote;
-        set => ConfigHelper.SetValue(ref _isQuote, value);
+        set => ConfigHelper.SetValue(ref _isQuote, value, propertyChangedAction: () => OnPropertyChanged());
     }
 
     private bool? _isVerified = ConfigHelper.GetValue(nameof(IsVerified), true);
@@ -177,7 +183,7 @@ internal class MainWindowViewModel : BindableBaseLight
     public bool? IsVerified
     {
         get => _isVerified;
-        set => ConfigHelper.SetValue(ref _isVerified, value);
+        set => ConfigHelper.SetValue(ref _isVerified, value, propertyChangedAction: () => OnPropertyChanged());
     }
 
     private bool? _isNotNullcast = ConfigHelper.GetValue(nameof(IsNotNullcast), (bool?)null);
@@ -185,7 +191,7 @@ internal class MainWindowViewModel : BindableBaseLight
     public bool? IsNotNullcast
     {
         get => _isNotNullcast;
-        set => ConfigHelper.SetValue(ref _isNotNullcast, value);
+        set => ConfigHelper.SetValue(ref _isNotNullcast, value, propertyChangedAction: () => OnPropertyChanged());
     }
 
     private bool? _hasHashtags = ConfigHelper.GetValue(nameof(HasHashtags), (bool?)null);
@@ -193,7 +199,7 @@ internal class MainWindowViewModel : BindableBaseLight
     public bool? HasHashtags
     {
         get => _hasHashtags;
-        set => ConfigHelper.SetValue(ref _hasHashtags, value);
+        set => ConfigHelper.SetValue(ref _hasHashtags, value, propertyChangedAction: () => OnPropertyChanged());
     }
 
     private bool? _hasCashtags = ConfigHelper.GetValue(nameof(HasCashtags), (bool?)null);
@@ -201,7 +207,7 @@ internal class MainWindowViewModel : BindableBaseLight
     public bool? HasCashtags
     {
         get => _hasCashtags;
-        set => ConfigHelper.SetValue(ref _hasCashtags, value);
+        set => ConfigHelper.SetValue(ref _hasCashtags, value, propertyChangedAction: () => OnPropertyChanged());
     }
 
     private bool? _hasLinks = ConfigHelper.GetValue(nameof(HasLinks), (bool?)null);
@@ -209,7 +215,7 @@ internal class MainWindowViewModel : BindableBaseLight
     public bool? HasLinks
     {
         get => _hasLinks;
-        set => ConfigHelper.SetValue(ref _hasLinks, value);
+        set => ConfigHelper.SetValue(ref _hasLinks, value, propertyChangedAction: () => OnPropertyChanged());
     }
 
     private bool? _hasMentions = ConfigHelper.GetValue(nameof(HasMentions), (bool?)null);
@@ -217,7 +223,7 @@ internal class MainWindowViewModel : BindableBaseLight
     public bool? HasMentions
     {
         get => _hasMentions;
-        set => ConfigHelper.SetValue(ref _hasMentions, value);
+        set => ConfigHelper.SetValue(ref _hasMentions, value, propertyChangedAction: () => OnPropertyChanged());
     }
 
     private bool? _hasMedia = ConfigHelper.GetValue(nameof(HasMedia), (bool?)null);
@@ -225,7 +231,7 @@ internal class MainWindowViewModel : BindableBaseLight
     public bool? HasMedia
     {
         get => _hasMedia;
-        set => ConfigHelper.SetValue(ref _hasMedia, value);
+        set => ConfigHelper.SetValue(ref _hasMedia, value, propertyChangedAction: () => OnPropertyChanged());
     }
 
     private bool? _hasImages = ConfigHelper.GetValue(nameof(HasImages), (bool?)null);
@@ -233,7 +239,7 @@ internal class MainWindowViewModel : BindableBaseLight
     public bool? HasImages
     {
         get => _hasImages;
-        set => ConfigHelper.SetValue(ref _hasImages, value);
+        set => ConfigHelper.SetValue(ref _hasImages, value, propertyChangedAction: () => OnPropertyChanged());
     }
 
     private bool? _hasVideos = ConfigHelper.GetValue(nameof(HasVideos), (bool?)null);
@@ -241,7 +247,7 @@ internal class MainWindowViewModel : BindableBaseLight
     public bool? HasVideos
     {
         get => _hasVideos;
-        set => ConfigHelper.SetValue(ref _hasVideos, value);
+        set => ConfigHelper.SetValue(ref _hasVideos, value, propertyChangedAction: () => OnPropertyChanged());
     }
 
     private bool? _hasGeo = ConfigHelper.GetValue(nameof(HasGeo), (bool?)null);
@@ -249,15 +255,15 @@ internal class MainWindowViewModel : BindableBaseLight
     public bool? HasGeo
     {
         get => _hasGeo;
-        set => ConfigHelper.SetValue(ref _hasGeo, value);
+        set => ConfigHelper.SetValue(ref _hasGeo, value, propertyChangedAction: () => OnPropertyChanged());
     }
 
-    private string _lang = ConfigHelper.GetValue(nameof(Lang), "ko,jp,en");
+    private string _lang = ConfigHelper.GetValue(nameof(Lang), "ko,ja,en");
     [IsExpressionProperty]
     public string Lang
     {
         get => _lang;
-        set => ConfigHelper.SetValue(ref _lang, value);
+        set => ConfigHelper.SetValue(ref _lang, value, propertyChangedAction: () => OnPropertyChanged());
     }
 
     #endregion Search Expression
@@ -300,13 +306,24 @@ internal class MainWindowViewModel : BindableBaseLight
 
     public MainWindowViewModel()
     {
+        _controller = new((s) => Error = s);
+
         TweetsCollectionView = new ListCollectionView(_controller.Tweets);
-        TweetsCollectionView.SortDescriptions.Add(new SortDescription(nameof(Tweet.CreatedAt), ListSortDirection.Descending));
+        TweetsCollectionView.SortDescriptions.Add(new SortDescription("Tweet.CreatedAt", ListSortDirection.Descending));
         RulesCollectionView = new ListCollectionView(_controller.Rules);
         RateLimitsCollectionView = new ListCollectionView(_controller.RateLimits);
         DeleteRuleCommand = new DelegateCommand<StreamInfo>(DeleteRuleAction);
+        GetRecentCommand = new DelegateCommand(GetRecentAction);
 
         PropertyChanged += OnPropertyChanged;
+
+        RefreshRule();
+    }
+
+    private void GetRecentAction()
+    {
+        Error = String.Empty;
+        _controller.GetRecentTweets(BuildExpression());
     }
 
     private void DeleteRuleAction(StreamInfo obj)
