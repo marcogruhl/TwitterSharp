@@ -18,6 +18,8 @@ internal class MainWindowViewModel : BindableBaseLight
     private Controller _controller { get; }
     public DelegateCommand<StreamInfo> DeleteRuleCommand { get; set; }
     public DelegateCommand GetRecentCommand { get; set; }
+    public DelegateCommand GetTweetsByIdCommand { get; set; }
+    public DelegateCommand GetTweetsFromUserCommand { get; set; }
 
     private string _bearerToken = ConfigHelper.GetValue(nameof(BearerToken), Environment.GetEnvironmentVariable("TWITTER_TOKEN"));
 
@@ -29,6 +31,54 @@ internal class MainWindowViewModel : BindableBaseLight
             Error = String.Empty;
             ConfigHelper.SetValue(ref _bearerToken, value);
             _controller.InitializeAsync(_bearerToken);
+        }
+    }
+
+    private string _ruleTag = ConfigHelper.GetValue(nameof(GetTweetByIdTweetId), "TwitterSharpDemo");
+
+    public string RuleTag
+    {
+        get => _ruleTag;
+        set 
+        {
+            if (String.IsNullOrEmpty(value))
+            {
+                value = "TwitterSharpDemo";
+            }
+
+            ConfigHelper.SetValue(ref _getTweetByIdTweetId, value);
+        }
+    }
+
+    private string _getTweetByIdTweetId = ConfigHelper.GetValue(nameof(GetTweetByIdTweetId), "1389189291582967809");
+
+    public string GetTweetByIdTweetId
+    {
+        get => _getTweetByIdTweetId;
+        set 
+        {
+            if (String.IsNullOrEmpty(value))
+            {
+                value = "1389189291582967809";
+            }
+
+            ConfigHelper.SetValue(ref _getTweetByIdTweetId, value);
+        }
+    }
+
+    private string _getTweetsFromUserUserId = ConfigHelper.GetValue(nameof(GetTweetsFromUserUserId), "1109748792721432577");
+
+    public string GetTweetsFromUserUserId
+    {
+        get => _getTweetsFromUserUserId;
+        set 
+        {
+            if (String.IsNullOrEmpty(value))
+            {
+                value = "1109748792721432577";
+            }
+
+            ConfigHelper.SetValue(ref _getTweetsFromUserUserId, value);
         }
     }
 
@@ -291,7 +341,7 @@ internal class MainWindowViewModel : BindableBaseLight
         }
     }
 
-    public const int RuleCharacterLimit = 500;
+    public const int RuleCharacterLimit = 512;
 
     public int ExpressionLength => ExpressionString == null ? 0 : ExpressionString.Length;
     public bool ExpressionLengthLimit => ExpressionLength < RuleCharacterLimit;
@@ -309,11 +359,13 @@ internal class MainWindowViewModel : BindableBaseLight
         _controller = new((s) => Error = s);
 
         TweetsCollectionView = new ListCollectionView(_controller.Tweets);
-        TweetsCollectionView.SortDescriptions.Add(new SortDescription("Tweet.CreatedAt", ListSortDirection.Descending));
+        TweetsCollectionView.SortDescriptions.Add(new SortDescription("Id", ListSortDirection.Descending));
         RulesCollectionView = new ListCollectionView(_controller.Rules);
         RateLimitsCollectionView = new ListCollectionView(_controller.RateLimits);
         DeleteRuleCommand = new DelegateCommand<StreamInfo>(DeleteRuleAction);
         GetRecentCommand = new DelegateCommand(GetRecentAction);
+        GetTweetsByIdCommand = new DelegateCommand(GetTweetsByIdAction);
+        GetTweetsFromUserCommand = new DelegateCommand(GetTweetsFromUserAction);
 
         PropertyChanged += OnPropertyChanged;
 
@@ -324,6 +376,18 @@ internal class MainWindowViewModel : BindableBaseLight
     {
         Error = String.Empty;
         _controller.GetRecentTweets(BuildExpression());
+    }
+
+    private void GetTweetsByIdAction()
+    {
+        Error = String.Empty;
+        _controller.GetTweetsById(GetTweetByIdTweetId);
+    }
+
+    private void GetTweetsFromUserAction()
+    {
+        Error = String.Empty;
+        _controller.GetTweetsFromUser(GetTweetsFromUserUserId);
     }
 
     private void DeleteRuleAction(StreamInfo obj)

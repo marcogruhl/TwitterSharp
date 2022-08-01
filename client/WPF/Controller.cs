@@ -30,6 +30,8 @@ internal class Controller : INotifyPropertyChanged, IAsyncDisposable
 
     public event Action<string> Error;
 
+    private int _tweetId = 0;
+
     private bool? _isConnected { get; set; }
     
     public bool? IsConnected
@@ -61,8 +63,6 @@ internal class Controller : INotifyPropertyChanged, IAsyncDisposable
         UserOption.Public_Metrics,
         UserOption.Protected
     };
-
-
 
     public Controller(Action<string> errorAction)
     {
@@ -124,7 +124,7 @@ internal class Controller : INotifyPropertyChanged, IAsyncDisposable
 
                     Application.Current.Dispatcher.Invoke(() =>
                     {
-                        Tweets.Add(new TweetViewModel(tweet, "Stream"));
+                        Tweets.Add(new TweetViewModel(tweet, "Stream", Interlocked.Increment(ref _tweetId)));
                         Debug.WriteLine($"From {tweet.Author.Name}: {tweet.Text} (Rules: {string.Join(',', tweet.MatchingRules.Select(x => x.Tag))})");
                     });
                         
@@ -179,6 +179,51 @@ internal class Controller : INotifyPropertyChanged, IAsyncDisposable
         UpdateRateLimits(new RateLimitViewModel("RulesPerStream", 25 - Rules.Count, 25));
     }
 
+
+
+    internal async Task GetTweetsById(string tweetId)
+    {
+        var searchOptions = new TweetSearchOptions
+        {
+            TweetOptions = _tweetOptions,
+            UserOptions = _userOptions,
+        };
+
+        try
+        {
+            var tweet = await _client.GetTweetAsync(tweetId, searchOptions);
+            Tweets.Add(new TweetViewModel(tweet, "TweetById", Interlocked.Increment(ref _tweetId)));
+        }
+        catch (TwitterException e)
+        {
+            Error.Invoke(TwitterExceptionToString(e));
+        }
+    }
+
+    internal async Task GetTweetsFromUser(string userId, int amount = 10)
+    {
+        var searchOptions = new TweetSearchOptions
+        {
+            TweetOptions = _tweetOptions,
+            UserOptions = _userOptions,
+            Limit = amount < 10 ? 10 : amount > 100 ? 100 : amount
+        };
+
+        try
+        {
+            var res = await _client.GetTweetsFromUserIdAsync(userId, searchOptions);
+            foreach (var tweet in res)
+            {
+                Tweets.Add(new TweetViewModel(tweet, "TweetsFromUser", Interlocked.Increment(ref _tweetId)));
+            }
+            
+        }
+        catch (TwitterException e)
+        {
+            Error.Invoke(TwitterExceptionToString(e));
+        }
+    }
+
     internal async Task GetRecentTweets(Rule.Expression expression, int amount = 10)
     {
         var searchOptions = new TweetSearchOptions
@@ -193,7 +238,7 @@ internal class Controller : INotifyPropertyChanged, IAsyncDisposable
             var res = await _client.GetRecentTweets(expression, searchOptions);
             foreach (var tweet in res)
             {
-                Tweets.Add(new TweetViewModel(tweet, "Recent"));
+                Tweets.Add(new TweetViewModel(tweet, "Recent", Interlocked.Increment(ref _tweetId)));
             }
             
         }

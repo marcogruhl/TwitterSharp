@@ -8,10 +8,13 @@ namespace TwitterSharp.WpfClient.ViewModels
 
         public Tweet Tweet { get; set; }
 
-        public TweetViewModel(Tweet tweet, string type)
+        public int Id { get; set; }
+
+        public TweetViewModel(Tweet tweet, string type, int id)
         {
             Tweet = tweet;
             Type = type;
+            Id = id;
         }
     }
 }

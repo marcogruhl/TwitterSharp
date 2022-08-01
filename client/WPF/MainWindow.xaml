@@ -24,11 +24,16 @@
         </Style>
         <Style TargetType="TextBox" x:Key="TextBoxVerticalStyle">
             <Setter Property="VerticalAlignment" Value="Top"/>
-            <Setter Property="MinWidth" Value="50"/>
+            <Setter Property="MinWidth" Value="80"/>
         </Style>
         <Style TargetType="StackPanel" x:Key="StackPanelVerticalStyle">
-            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Margin" Value="0 5 5 0"/>
             <Setter Property="Orientation" Value="Vertical"/>
+        </Style>        
+        <Style TargetType="StackPanel" x:Key="StackPanelTweetOptionsStyle">
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Width" Value="88"></Setter>
+            <Setter Property="Orientation" Value="Horizontal"/>
         </Style>
 
         <Style TargetType="TextBlock" x:Key="TextBlockVerticalStyle">
@@ -48,15 +53,14 @@
         <system:Double x:Key="Opacity">0.3</system:Double>
 
         <SolidColorBrush Color="Black" x:Key="BearerBrush"></SolidColorBrush>
-        <SolidColorBrush Color="Purple" x:Key="GetRecentBrush"></SolidColorBrush>
-        <SolidColorBrush Color="Purple" Opacity="{StaticResource Opacity}" x:Key="GetRecentTransparentBrush"></SolidColorBrush>
+        <SolidColorBrush Color="Goldenrod" x:Key="GetRecentBrush"></SolidColorBrush>
+        <SolidColorBrush Color="Goldenrod" Opacity="{StaticResource Opacity}" x:Key="GetRecentTransparentBrush"></SolidColorBrush>
         <SolidColorBrush Color="DarkOliveGreen" x:Key="StartStreamBrush"></SolidColorBrush>
         <SolidColorBrush Color="DarkOliveGreen" Opacity="{StaticResource Opacity}" x:Key="StartStreamTransparentBrush"></SolidColorBrush>
         <SolidColorBrush Color="DarkBlue" x:Key="GetTweetByIdBrush"></SolidColorBrush>
         <SolidColorBrush Color="DarkBlue" Opacity="{StaticResource Opacity}" x:Key="GetTweetByIdTransparentBrush"></SolidColorBrush>
         <SolidColorBrush Color="DarkRed" x:Key="GetTweetsFromUserBrush"></SolidColorBrush>
         <SolidColorBrush Color="DarkRed" Opacity="{StaticResource Opacity}" x:Key="GetTweetsFromUserTransparentBrush"></SolidColorBrush>
-        <!-- <SolidColorBrush Color="DarkCyan" x:Key="GetTweetsFromXBrush"></SolidColorBrush> -->
 
         <helper:EmptyStringToVisibilityConverter  x:Key="EmptyStringToVisibilityConverter" />
         <helper:BooleanToBrushConverter  x:Key="BooleanToBrushConverter" FalseColor="{StaticResource RedBrush}" TrueColor="{StaticResource GreyBrush}" />
@@ -72,22 +76,17 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
         <ContentControl Visibility="Collapsed" Content="{StaticResource Proxy}"/>
-        <Grid Grid.Row="0" Grid.ColumnSpan="8">
-            <!-- <StackPanel Orientation="Vertical" Grid.Column="2"> -->
-            <!--     <TextBlock Text="Baerer Token"/> -->
-            <!--     <TextBox Text="{Binding BearerToken}"/> -->
-            <!-- </StackPanel> -->
-
+        <Grid Grid.Row="0" Grid.ColumnSpan="8"> <!-- Baerer Token -->
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
@@ -143,7 +142,7 @@
             <Rectangle Width="10" Fill="{StaticResource BearerBrush}" Grid.Column="1" Grid.Row="1"/>
             <Polygon Points="0,0 20,0, 10,10" StrokeThickness="0" Fill="{StaticResource BearerBrush}" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Center"/>
         </Grid>
-        <Grid Grid.Row="2"> <!-- Expression -->
+        <Grid Grid.Row="2" Grid.Column="0"> <!-- Expression -->
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"></ColumnDefinition>
                 <ColumnDefinition Width="*"></ColumnDefinition>
@@ -153,139 +152,108 @@
             <TextBlock Text="Expression" Grid.Column="0" Style="{StaticResource VerticalHeaderTextBlock}"/>
             <Border Grid.Column="1" BorderThickness="0.5" Padding="5" BorderBrush="Black" Margin="0 0 0 10">
                 <StackPanel Orientation="Vertical" >
-                    <StackPanel Orientation="Horizontal">
-                        <StackPanel Style="{StaticResource StackPanelVerticalStyle}" Margin="0 5 5 5">
-                            <TextBlock Text="Keyword" Style="{StaticResource TextBlockVerticalStyle}" ToolTip="Keywords separated by , (AND operator)"/>
-                            <TextBox Text="{Binding Keyword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBoxVerticalStyle}"/>
-                        </StackPanel>
-
-                        <StackPanel Style="{StaticResource StackPanelVerticalStyle}">
-                            <TextBlock Text="Hashtag" Style="{StaticResource TextBlockVerticalStyle}" ToolTip="Hashtags separated by , (AND operator)"/>
-                            <TextBox Text="{Binding Hashtag, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBoxVerticalStyle}">
-                            </TextBox>
-                        </StackPanel>
-                        <StackPanel Style="{StaticResource StackPanelVerticalStyle}">
-                            <TextBlock Text="Mentions" Style="{StaticResource TextBlockVerticalStyle}" ToolTip="Mentions separated by , (AND operator)"/>
-                            <TextBox Text="{Binding Mention, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBoxVerticalStyle}">
-                            </TextBox>
-                        </StackPanel>
-                        <StackPanel Style="{StaticResource StackPanelVerticalStyle}">
-                            <TextBlock Text="Language" Style="{StaticResource TextBlockVerticalStyle}" ToolTip="Languages separated by , (OR operator)"/>
-                            <TextBox Text="{Binding Lang, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBoxVerticalStyle}">
-                            </TextBox>
-                        </StackPanel>
-                        <!-- <Grid> -->
-                        <!--     <Grid.ColumnDefinitions> -->
-                        <!--         <ColumnDefinition Width="Auto"/> -->
-                        <!--         <ColumnDefinition Width="Auto"/> -->
-                        <!--     </Grid.ColumnDefinitions> -->
-                        <!--     <Grid.RowDefinitions> -->
-                        <!--         <RowDefinition Height="Auto"/> -->
-                        <!--         <RowDefinition Height="Auto"/> -->
-                        <!--         <RowDefinition Height="Auto"/> -->
-                        <!--         <RowDefinition Height="Auto"/> -->
-                        <!--         <RowDefinition Height="Auto"/> -->
-                        <!--         <RowDefinition Height="Auto"/> -->
-                        <!--         <RowDefinition Height="Auto"/> -->
-                        <!--         <RowDefinition Height="Auto"/> -->
-                        <!--         <RowDefinition Height="Auto"/> -->
-                        <!--         <RowDefinition Height="Auto"/> -->
-                        <!--         <RowDefinition Height="Auto"/> -->
-                        <!--         <RowDefinition Height="Auto"/> -->
-                        <!--         <RowDefinition Height="Auto"/> -->
-                        <!--     </Grid.RowDefinitions> -->
-                        <!-- -->
-                        <!--     <TextBlock Grid.Column="0" Grid.Row="0" Text="IsRetweet"/> -->
-                        <!--     <CheckBox Grid.Column="1" Grid.Row="0" IsChecked="{Binding IsRetweet}" Style="{StaticResource ThreeStateCheckBoxStyle}" /> -->
-                        <!-- -->
-                        <!--     <TextBlock Grid.Column="0" Grid.Row="1" Text="IsReply"/> -->
-                        <!--     <CheckBox Grid.Column="1" Grid.Row="1" IsChecked="{Binding IsReply}" Style="{StaticResource ThreeStateCheckBoxStyle}"/> -->
-                        <!-- -->
-                        <!--     <TextBlock Grid.Column="0" Grid.Row="2" Text="IsQuote"/> -->
-                        <!--     <CheckBox Grid.Column="1" Grid.Row="2" IsChecked="{Binding IsQuote}" Style="{StaticResource ThreeStateCheckBoxStyle}"/> -->
-                        <!-- -->
-                        <!--     <TextBlock Grid.Column="0" Grid.Row="3" Text="IsVerified"/> -->
-                        <!--     <CheckBox Grid.Column="1" Grid.Row="3" IsChecked="{Binding IsVerified}" Style="{StaticResource ThreeStateCheckBoxStyle}"/> -->
-                        <!-- -->
-                        <!--     <TextBlock Grid.Column="0" Grid.Row="5" Text="HasHashtags"/> -->
-                        <!--     <CheckBox Grid.Column="1" Grid.Row="5" IsChecked="{Binding HasHashtags}" Style="{StaticResource ThreeStateCheckBoxStyle}"/> -->
-                        <!-- -->
-                        <!--     <TextBlock Grid.Column="0" Grid.Row="7" Text="HasLinks"/> -->
-                        <!--     <CheckBox Grid.Column="1" Grid.Row="7" IsChecked="{Binding HasLinks}" Style="{StaticResource ThreeStateCheckBoxStyle}"/> -->
-                        <!-- -->
-                        <!--     <TextBlock Grid.Column="0" Grid.Row="8" Text="HasMentions"/> -->
-                        <!--     <CheckBox Grid.Column="1" Grid.Row="8" IsChecked="{Binding HasMentions}" Style="{StaticResource ThreeStateCheckBoxStyle}"/> -->
-                        <!-- -->
-                        <!--     <TextBlock Grid.Column="0" Grid.Row="9" Text="HasMedia"/> -->
-                        <!--     <CheckBox Grid.Column="1" Grid.Row="9" IsChecked="{Binding HasMedia}" Style="{StaticResource ThreeStateCheckBoxStyle}"/> -->
-                        <!-- -->
-                        <!--     <TextBlock Grid.Column="0" Grid.Row="10" Text="HasImages"/> -->
-                        <!--     <CheckBox Grid.Column="1" Grid.Row="10" IsChecked="{Binding HasImages}" Style="{StaticResource ThreeStateCheckBoxStyle}"/> -->
-                        <!-- -->
-                        <!--     <TextBlock Grid.Column="0" Grid.Row="11" Text="HasVideos"/> -->
-                        <!--     <CheckBox Grid.Column="1" Grid.Row="11" IsChecked="{Binding HasVideos}" Style="{StaticResource ThreeStateCheckBoxStyle}"/> -->
-                        <!-- -->
-                        <!-- </Grid> -->
-                    </StackPanel>
-
-                        <Grid Margin="5">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                        
-                            <TextBlock Grid.Column="1" Grid.Row="0" Text="IsRetweet"/>
-                            <CheckBox Grid.Column="0" Grid.Row="0" IsChecked="{Binding IsRetweet}" Style="{StaticResource ThreeStateCheckBoxStyle}" />
-                        
-                            <TextBlock Grid.Column="1" Grid.Row="1" Text="IsReply"/>
-                            <CheckBox Grid.Column="0" Grid.Row="1" IsChecked="{Binding IsReply}" Style="{StaticResource ThreeStateCheckBoxStyle}"/>
-                        
-                            <TextBlock Grid.Column="1" Grid.Row="2" Text="IsQuote"/>
-                            <CheckBox Grid.Column="0" Grid.Row="2" IsChecked="{Binding IsQuote}" Style="{StaticResource ThreeStateCheckBoxStyle}"/>
-                        
-                            <TextBlock Grid.Column="3" Grid.Row="0" Text="IsVerified"/>
-                            <CheckBox Grid.Column="2" Grid.Row="0" IsChecked="{Binding IsVerified}" Style="{StaticResource ThreeStateCheckBoxStyle}"/>
-                        
-                            <TextBlock Grid.Column="3" Grid.Row="1" Text="HasHashtags"/>
-                            <CheckBox Grid.Column="2" Grid.Row="1" IsChecked="{Binding HasHashtags}" Style="{StaticResource ThreeStateCheckBoxStyle}"/>
-                        
-                            <TextBlock Grid.Column="3" Grid.Row="2" Text="HasLinks"/>
-                            <CheckBox Grid.Column="2" Grid.Row="2" IsChecked="{Binding HasLinks}" Style="{StaticResource ThreeStateCheckBoxStyle}"/>
-                        
-                            <TextBlock Grid.Column="5" Grid.Row="0" Text="HasMentions"/>
-                            <CheckBox Grid.Column="4" Grid.Row="0" IsChecked="{Binding HasMentions}" Style="{StaticResource ThreeStateCheckBoxStyle}"/>
-                        
-                            <!-- <TextBlock Grid.Column="4" Grid.Row="9" Text="HasMedia"/> -->
-                            <!-- <CheckBox Grid.Column="5" Grid.Row="9" IsChecked="{Binding HasMedia}" Style="{StaticResource ThreeStateCheckBoxStyle}"/> -->
-                        
-                            <TextBlock Grid.Column="5" Grid.Row="1" Text="HasImages"/>
-                            <CheckBox Grid.Column="4" Grid.Row="1" IsChecked="{Binding HasImages}" Style="{StaticResource ThreeStateCheckBoxStyle}"/>
-                        
-                            <TextBlock Grid.Column="5" Grid.Row="2" Text="HasVideos"/>
-                            <CheckBox Grid.Column="4" Grid.Row="2" IsChecked="{Binding HasVideos}" Style="{StaticResource ThreeStateCheckBoxStyle}"/>
-                        
-                        </Grid>
-
-
+                    <!-- <StackPanel Orientation="Horizontal"> -->
+                    <ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderThickness="0">
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel IsItemsHost="True" />
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                        <ListBoxItem>
+                            <StackPanel Style="{StaticResource StackPanelVerticalStyle}">
+                                <TextBlock Text="Keyword" Style="{StaticResource TextBlockVerticalStyle}" ToolTip="Keywords separated by , (AND operator)"/>
+                                <TextBox Text="{Binding Keyword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBoxVerticalStyle}" ToolTip="Keywords separated by , (AND operator)"/>
+                            </StackPanel>
+                        </ListBoxItem>
+                        <ListBoxItem>
+                            <StackPanel Style="{StaticResource StackPanelVerticalStyle}">
+                                <TextBlock Text="Hashtag" Style="{StaticResource TextBlockVerticalStyle}" ToolTip="Hashtags separated by , (AND operator)"/>
+                                <TextBox Text="{Binding Hashtag, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBoxVerticalStyle}" ToolTip="Hashtags separated by , (AND operator)">
+                                </TextBox>
+                            </StackPanel>
+                        </ListBoxItem>
+                        <ListBoxItem>
+                            <StackPanel Style="{StaticResource StackPanelVerticalStyle}">
+                                <TextBlock Text="Mentions" Style="{StaticResource TextBlockVerticalStyle}" ToolTip="Mentions separated by , (AND operator)"/>
+                                <TextBox Text="{Binding Mention, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBoxVerticalStyle}" ToolTip="Mentions separated by , (AND operator)">
+                                </TextBox>
+                            </StackPanel>
+                        </ListBoxItem>
+                        <ListBoxItem>
+                            <StackPanel Style="{StaticResource StackPanelVerticalStyle}">
+                                <TextBlock Text="Language" Style="{StaticResource TextBlockVerticalStyle}" ToolTip="Languages separated by , (OR operator)"/>
+                                <TextBox Text="{Binding Lang, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBoxVerticalStyle}" ToolTip="Languages separated by , (OR operator)">
+                                </TextBox>
+                            </StackPanel>
+                        </ListBoxItem>
+                    </ListBox>
+                    <ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderThickness="0">
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel IsItemsHost="True" />
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                        <ListBoxItem>
+                            <StackPanel Style="{StaticResource StackPanelTweetOptionsStyle}">
+                                <CheckBox IsChecked="{Binding IsRetweet}" Style="{StaticResource ThreeStateCheckBoxStyle}" />
+                                <TextBlock Text="IsRetweet"/>
+                            </StackPanel>
+                        </ListBoxItem>
+                        <ListBoxItem>
+                            <StackPanel Style="{StaticResource StackPanelTweetOptionsStyle}">
+                                <CheckBox Grid.Column="0" Grid.Row="1" IsChecked="{Binding IsReply}" Style="{StaticResource ThreeStateCheckBoxStyle}"/>
+                                <TextBlock Grid.Column="1" Grid.Row="1" Text="IsReply"/>
+                           </StackPanel>
+                        </ListBoxItem>
+                        <ListBoxItem>
+                            <StackPanel Style="{StaticResource StackPanelTweetOptionsStyle}">
+                                <CheckBox Grid.Column="0" Grid.Row="2" IsChecked="{Binding IsQuote}" Style="{StaticResource ThreeStateCheckBoxStyle}"/>
+                                <TextBlock Grid.Column="1" Grid.Row="2" Text="IsQuote"/>
+                            </StackPanel>
+                        </ListBoxItem>
+                        <ListBoxItem>
+                            <StackPanel Style="{StaticResource StackPanelTweetOptionsStyle}">
+                                <CheckBox Grid.Column="2" Grid.Row="0" IsChecked="{Binding IsVerified}" Style="{StaticResource ThreeStateCheckBoxStyle}"/>
+                                <TextBlock Grid.Column="3" Grid.Row="0" Text="IsVerified"/>
+                            </StackPanel>
+                        </ListBoxItem>
+                        <ListBoxItem>
+                            <StackPanel Style="{StaticResource StackPanelTweetOptionsStyle}">
+                                <CheckBox Grid.Column="2" Grid.Row="1" IsChecked="{Binding HasHashtags}" Style="{StaticResource ThreeStateCheckBoxStyle}"/>
+                                <TextBlock Grid.Column="3" Grid.Row="1" Text="HasHashtags"/>
+                            </StackPanel>
+                        </ListBoxItem>
+                        <ListBoxItem>
+                            <StackPanel Style="{StaticResource StackPanelTweetOptionsStyle}">
+                                <CheckBox Grid.Column="2" Grid.Row="2" IsChecked="{Binding HasLinks}" Style="{StaticResource ThreeStateCheckBoxStyle}"/>
+                                <TextBlock Grid.Column="3" Grid.Row="2" Text="HasLinks"/>
+                            </StackPanel>
+                        </ListBoxItem>
+                        <ListBoxItem>
+                            <StackPanel Style="{StaticResource StackPanelTweetOptionsStyle}">
+                                <CheckBox Grid.Column="4" Grid.Row="0" IsChecked="{Binding HasMentions}" Style="{StaticResource ThreeStateCheckBoxStyle}"/>
+                                <TextBlock Grid.Column="5" Grid.Row="0" Text="HasMentions"/>
+                            </StackPanel>
+                        </ListBoxItem>
+                        <ListBoxItem>
+                            <StackPanel Style="{StaticResource StackPanelTweetOptionsStyle}">
+                                <CheckBox Grid.Column="5" Grid.Row="9" IsChecked="{Binding HasMedia}" Style="{StaticResource ThreeStateCheckBoxStyle}"/>
+                                <TextBlock Grid.Column="4" Grid.Row="9" Text="HasMedia"/>
+                            </StackPanel>
+                        </ListBoxItem>
+                        <ListBoxItem>
+                            <StackPanel Style="{StaticResource StackPanelTweetOptionsStyle}">
+                                <CheckBox Grid.Column="4" Grid.Row="1" IsChecked="{Binding HasImages}" Style="{StaticResource ThreeStateCheckBoxStyle}"/>
+                                <TextBlock Grid.Column="5" Grid.Row="1" Text="HasImages"/>
+                            </StackPanel>
+                        </ListBoxItem>
+                        <ListBoxItem>
+                            <StackPanel Style="{StaticResource StackPanelTweetOptionsStyle}">
+                                <CheckBox Grid.Column="4" Grid.Row="2" IsChecked="{Binding HasVideos}" Style="{StaticResource ThreeStateCheckBoxStyle}"/>
+                                <TextBlock Grid.Column="5" Grid.Row="2" Text="HasVideos"/>
+                            </StackPanel>
+                        </ListBoxItem>
+                    </ListBox>
                     <TextBlock Text="{Binding Error}" Foreground="Red" TextWrapping="Wrap" Visibility="{Binding Error, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
                     <TextBlock TextWrapping="Wrap">
                         <Run Text="{Binding ExpressionString, Mode=OneWay}" />
@@ -313,13 +281,18 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <Button Content="Get Recent" Command="{Binding GetRecentCommand}" Grid.Row="0" Margin="5 0 5 0"/>
             <Button Content="Add Rule" Grid.Row="1" Margin="5 10 5 0"/>
-            <Rectangle Width="10" Fill="{StaticResource StartStreamBrush}" Grid.Row="2" Margin="0 5 0 0"/>
-            <Polygon Points="0,0 20,0, 10,10" Stroke="{StaticResource StartStreamBrush}" Fill="{StaticResource StartStreamBrush}" Grid.Row="3" HorizontalAlignment="Center"/>
+            <StackPanel Grid.Row="2" >
+                <TextBlock Text="RuleTag" Margin="5 5 5 0"/>
+                <TextBox Text="{Binding RuleTag, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5 0 5 0"/>
+            </StackPanel>
+            <Rectangle Width="10" Fill="{StaticResource StartStreamBrush}" Grid.Row="3" Margin="0 5 0 0"/>
+            <Polygon Points="0,0 20,0, 10,10" Stroke="{StaticResource StartStreamBrush}" Fill="{StaticResource StartStreamBrush}" Grid.Row="4" HorizontalAlignment="Center"/>
         </Grid>
         <Grid Grid.Row="2" Grid.Column="3" Grid.RowSpan="3" Margin="0">
             <Grid.RowDefinitions>
@@ -353,33 +326,19 @@
             <Rectangle Width="10" Fill="{StaticResource GetTweetsFromUserBrush}" Grid.Row="2"/>
             <Polygon Points="0,0 20,0, 10,10" StrokeThickness="0" Fill="{StaticResource GetTweetsFromUserBrush}" Grid.Row="3" HorizontalAlignment="Center"/>
         </Grid>
-        <!-- <Grid Grid.Row="1" Grid.Column="5" Grid.RowSpan="3" Margin="0"> -->
-        <!--     <Grid.RowDefinitions> -->
-        <!--         <RowDefinition Height="Auto" /> -->
-        <!--         <RowDefinition Height="Auto" /> -->
-        <!--         <RowDefinition Height="Auto" /> -->
-        <!--         <RowDefinition Height="*" /> -->
-        <!--         <RowDefinition Height="Auto" /> -->
-        <!--     </Grid.RowDefinitions> -->
-        <!--     <Rectangle Height="10" Fill="{StaticResource GetTweetByIdBrush}" Margin="0 5 0 0"/> -->
-        <!--     <Rectangle Height="10" Fill="{StaticResource GetTweetsFromUserBrush}" Margin="0 20 0 0" Grid.Row="1"/> -->
-        <!--     <Rectangle Height="10" Fill="{StaticResource GetTweetsFromXBrush}" Margin="5 20 0 0" Grid.Row="2"/> -->
-        <!--     <Rectangle Width="10" Fill="{StaticResource GetTweetsFromXBrush}" Grid.Row="3"/> -->
-        <!--     <Polygon Points="0,0 20,0, 10,10" StrokeThickness="0" Fill="{StaticResource GetTweetsFromXBrush}" Grid.Row="4" HorizontalAlignment="Center"/> -->
-        <!-- </Grid> -->
-        <Grid Grid.Row="2" Grid.Column="6">
+        <Grid Grid.Row="2" Grid.Column="6"> <!-- Get Tweets Buttons -->
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <Button Content="Get Tweet by ID" Grid.Row="0" Margin="5 0 5 0"/>
-            <Button Content="Get Tweets From User" Grid.Row="1" Margin="5 10 5 0"/>
+            <Button Content="Get Tweet by ID" Command="{Binding GetTweetsByIdCommand}" Grid.Row="0" Margin="5 0 5 0"/>
+            <Button Content="Get Tweets From User" Command="{Binding GetTweetsFromUserCommand}" Grid.Row="1" Margin="5 10 5 0"/>
             <!-- <Button Content="Get Third bla" Grid.Row="2" Margin="5 10 5 0"/> -->
             <!-- <TextBox Text="{Binding BearerToken}" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" /> -->
 
         </Grid>
-        <Grid Grid.Row="2" Grid.Column="7">
+        <Grid Grid.Row="2" Grid.Column="7"> <!-- Get Tweers TextBoxes -->
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -389,7 +348,7 @@
             <TextBox Text="{Binding GetTweetsFromUserUserId}" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Margin="0 10 5 0"/>
 
         </Grid>
-        <Grid Grid.Row="3" Grid.ColumnSpan="3">
+        <Grid Grid.Row="3" Grid.ColumnSpan="3"> <!-- Rules -->
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"></ColumnDefinition>
                 <ColumnDefinition Width="*"></ColumnDefinition>
@@ -402,11 +361,17 @@
                     <GridView AllowsColumnReorder="true">
                         <GridViewColumn DisplayMemberBinding="{Binding Id}" Header="Id"/>
                         <GridViewColumn DisplayMemberBinding="{Binding Tag}" Header="Tag"/>
-                        <GridViewColumn DisplayMemberBinding="{Binding Value}" Header="Expression"/>
+                        <GridViewColumn Header="Expression">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Path=Value}" TextWrapping="Wrap"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
                         <GridViewColumn Header="Delete">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate DataType="DataGridCell">
-                                    <Button Command="{Binding DataContext.DeleteRuleCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding}" Content="D"/>
+                                    <Button Command="{Binding DataContext.DeleteRuleCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding}" Content="Delete"/>
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
@@ -414,7 +379,7 @@
                 </ListView.View>
             </ListView>
         </Grid>
-        <Grid Grid.Row="3" Grid.Column="6" Grid.ColumnSpan="2">
+        <Grid Grid.Row="3" Grid.Column="6" Grid.ColumnSpan="2" VerticalAlignment="Top"> <!-- RateLimits -->
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"></ColumnDefinition>
                 <ColumnDefinition Width="*"></ColumnDefinition>
@@ -426,7 +391,7 @@
                         <GridViewColumn DisplayMemberBinding="{Binding Name}" Header="Endpoint"/>
                         <GridViewColumn DisplayMemberBinding="{Binding Value}" Header="Value"/>
                         <GridViewColumn DisplayMemberBinding="{Binding Max}" Header="Max"/>
-                        <GridViewColumn DisplayMemberBinding="{Binding Reset}" Header="Reset Time"/>
+                        <GridViewColumn DisplayMemberBinding="{Binding ResetTime, StringFormat=T}" Header="Reset Time"/>
                         <GridViewColumn DisplayMemberBinding="{Binding ResetTimeLeft}" Header="TimeLeft">
                         </GridViewColumn>
                     </GridView>
@@ -443,13 +408,11 @@
             </Grid.RowDefinitions>
             <Rectangle Width="10" Fill="{StaticResource StartStreamBrush}" Grid.Row="0" MinHeight="10" Margin="0 5 0 0"/>
             <Polygon Points="0,0 20,0, 10,10" Stroke="{StaticResource StartStreamBrush}" Fill="{StaticResource StartStreamBrush}" Grid.Row="1" HorizontalAlignment="Center"/>
-
             <Button Content="Start Stream" Grid.Row="2" Margin="5 0"/>
             <Rectangle Width="10" Fill="{StaticResource StartStreamBrush}" Grid.Row="3" MinHeight="10" Margin="0 5 0 0"/>
             <Polygon Points="0,0 20,0, 10,10" Stroke="{StaticResource StartStreamBrush}" Fill="{StaticResource StartStreamBrush}" Grid.Row="4" HorizontalAlignment="Center"/>
-
         </Grid>
-        <Grid Grid.Row="5" Grid.ColumnSpan="8">
+        <Grid Grid.Row="5" Grid.ColumnSpan="8"> <!-- Tweets -->
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
@@ -478,7 +441,7 @@
 
                     <GridView AllowsColumnReorder="true">
                         
-                        <GridViewColumn DisplayMemberBinding="{Binding Tweet.CreatedAt, StringFormat=T}" Header="Time"/>
+                        <GridViewColumn DisplayMemberBinding="{Binding Tweet.CreatedAt}" Header="Time"/>
                         <GridViewColumn DisplayMemberBinding="{Binding Tweet.Author.Name}" Header="Name" />
                         <GridViewColumn Header="Text">
                             <GridViewColumn.CellTemplate>
