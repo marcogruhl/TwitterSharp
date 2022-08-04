@@ -7,7 +7,7 @@
         xmlns:helper="clr-namespace:TwitterSharp.WpfClient.Helper"
         xmlns:system="clr-namespace:System;assembly=System.Runtime"
         mc:Ignorable="d"
-        Title="Tweet Dashboard" Height="800" Width="1000"
+        Title="Tweet Dashboard" Height="800" Width="1170"
         d:DataContext="{d:DesignInstance viewModels:MainWindowViewModel}">
     <Window.Resources>
         <FrameworkElement x:Key="Proxy" DataContext="{Binding}"/>
@@ -29,6 +29,14 @@
         <Style TargetType="StackPanel" x:Key="StackPanelVerticalStyle">
             <Setter Property="Margin" Value="0 5 5 0"/>
             <Setter Property="Orientation" Value="Vertical"/>
+        </Style>        
+        <Style TargetType="StackPanel" x:Key="StackPanelAndOrSearchStyle">
+            <Setter Property="Orientation" Value="Horizontal"/>
+        </Style>
+        <Style TargetType="Button" x:Key="AndOrButtonStyle">
+            <Setter Property="Width" Value="25"/>
+            <Setter Property="Height" Value="18"/>
+            <Setter Property="Margin" Value="0 0 2 0"/>
         </Style>        
         <Style TargetType="StackPanel" x:Key="StackPanelTweetOptionsStyle">
             <Setter Property="Margin" Value="0"/>
@@ -94,10 +102,13 @@
             <TextBlock Text="Baerer Token" FontSize="16" FontWeight="Bold" Grid.Column="0" Margin="5 5 5 0"/>
             <TextBox Text="{Binding BearerToken, UpdateSourceTrigger=LostFocus}" KeyUp="BearerToken_KeyEnterUpdate" Grid.Column="1" FontSize="14" VerticalAlignment="Center" Margin="5 5 5 0"/>
         </Grid>
+        <Grid Grid.Row="1" Grid.Column="0">
+            <TextBlock Text="{Binding Error}" Foreground="Red" Margin="12 10 0 0" TextWrapping="Wrap" Visibility="{Binding Error, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
+        </Grid>
         <Grid Grid.Row="1" Grid.Column="2">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="10" />
+                <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
@@ -105,9 +116,9 @@
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Rectangle Height="10" Fill="{StaticResource BearerBrush}" Grid.Column="1" Margin="5 10 0 0"/>
+            <Rectangle MinHeight="10" Fill="{StaticResource BearerBrush}" Grid.Column="1" Margin="5 10 0 0"/>
             <Rectangle Height="10" Fill="{StaticResource BearerBrush}" Grid.Column="2" Margin="0 10 0 0"/>
-            <Rectangle Width="10" Fill="{StaticResource BearerBrush}" Grid.Column="1" Grid.Row="1"/>
+            <Rectangle Width="10" MinHeight="10" Fill="{StaticResource BearerBrush}" Grid.Column="1" Grid.Row="1"/>
             <Polygon Points="0,0 20,0, 10,10" StrokeThickness="0" Fill="{StaticResource BearerBrush}" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Center"/>
         </Grid>
         <Grid Grid.Row="1" Grid.Column="3" Grid.ColumnSpan="3">
@@ -129,7 +140,7 @@
         <Grid Grid.Row="1" Grid.Column="6">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="10" />
+                <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
@@ -139,7 +150,7 @@
             </Grid.ColumnDefinitions>
             <Rectangle Height="10" Fill="{StaticResource BearerBrush}" Grid.Column="1" Margin="0 10 5 0"/>
             <Rectangle Height="10" Fill="{StaticResource BearerBrush}" Grid.Column="0" Margin="0 10 0 0"/>
-            <Rectangle Width="10" Fill="{StaticResource BearerBrush}" Grid.Column="1" Grid.Row="1"/>
+            <Rectangle Width="10" MinHeight="10" Fill="{StaticResource BearerBrush}" Grid.Column="1" Grid.Row="1"/>
             <Polygon Points="0,0 20,0, 10,10" StrokeThickness="0" Fill="{StaticResource BearerBrush}" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Center"/>
         </Grid>
         <Grid Grid.Row="2" Grid.Column="0"> <!-- Expression -->
@@ -162,28 +173,40 @@
                         <ListBoxItem>
                             <StackPanel Style="{StaticResource StackPanelVerticalStyle}">
                                 <TextBlock Text="Keyword" Style="{StaticResource TextBlockVerticalStyle}" ToolTip="Keywords separated by , (AND operator)"/>
-                                <TextBox Text="{Binding Keyword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBoxVerticalStyle}" ToolTip="Keywords separated by , (AND operator)"/>
-                            </StackPanel>
+                                <StackPanel Style="{StaticResource StackPanelAndOrSearchStyle}">
+                                    <Button Command="{Binding KeywordAndOrCommand}" Content="{Binding KeywordAndOr, Mode=OneWay}" Style="{StaticResource AndOrButtonStyle}"/>
+                                    <TextBox Text="{Binding Keyword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBoxVerticalStyle}" ToolTip="Keywords separated by ,"/>
+                                </StackPanel>
+                                </StackPanel>
                         </ListBoxItem>
                         <ListBoxItem>
                             <StackPanel Style="{StaticResource StackPanelVerticalStyle}">
                                 <TextBlock Text="Hashtag" Style="{StaticResource TextBlockVerticalStyle}" ToolTip="Hashtags separated by , (AND operator)"/>
-                                <TextBox Text="{Binding Hashtag, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBoxVerticalStyle}" ToolTip="Hashtags separated by , (AND operator)">
-                                </TextBox>
+                                <StackPanel Style="{StaticResource StackPanelAndOrSearchStyle}">
+                                    <Button Command="{Binding HashtagAndOrCommand}" Content="{Binding HashtagAndOr, Mode=OneWay}" Style="{StaticResource AndOrButtonStyle}"/>
+                                    <TextBox Text="{Binding Hashtag, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBoxVerticalStyle}" ToolTip="Hashtags separated by ,"/>
+                                </StackPanel>
                             </StackPanel>
                         </ListBoxItem>
                         <ListBoxItem>
                             <StackPanel Style="{StaticResource StackPanelVerticalStyle}">
                                 <TextBlock Text="Mentions" Style="{StaticResource TextBlockVerticalStyle}" ToolTip="Mentions separated by , (AND operator)"/>
-                                <TextBox Text="{Binding Mention, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBoxVerticalStyle}" ToolTip="Mentions separated by , (AND operator)">
-                                </TextBox>
+                                <StackPanel Style="{StaticResource StackPanelAndOrSearchStyle}">
+                                    <Button Command="{Binding MentionAndOrCommand}" Content="{Binding MentionAndOr, Mode=OneWay}" Style="{StaticResource AndOrButtonStyle}"/>
+                                    <TextBox Text="{Binding Mention, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBoxVerticalStyle}" ToolTip="Mentions separated by ,"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </ListBoxItem>
+                        <ListBoxItem>
+                            <StackPanel Style="{StaticResource StackPanelVerticalStyle}">
+                                <TextBlock Text="From" Style="{StaticResource TextBlockVerticalStyle}" ToolTip="Users separated by , (OR operator)"/>
+                                <TextBox Text="{Binding From, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBoxVerticalStyle}" ToolTip="Users separated by , (always OR operator)"/>
                             </StackPanel>
                         </ListBoxItem>
                         <ListBoxItem>
                             <StackPanel Style="{StaticResource StackPanelVerticalStyle}">
                                 <TextBlock Text="Language" Style="{StaticResource TextBlockVerticalStyle}" ToolTip="Languages separated by , (OR operator)"/>
-                                <TextBox Text="{Binding Lang, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBoxVerticalStyle}" ToolTip="Languages separated by , (OR operator)">
-                                </TextBox>
+                                <TextBox Text="{Binding Lang, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBoxVerticalStyle}" ToolTip="Languages separated by , (always OR operator)"/>
                             </StackPanel>
                         </ListBoxItem>
                     </ListBox>
@@ -254,7 +277,7 @@
                             </StackPanel>
                         </ListBoxItem>
                     </ListBox>
-                    <TextBlock Text="{Binding Error}" Foreground="Red" TextWrapping="Wrap" Visibility="{Binding Error, Converter={StaticResource EmptyStringToVisibilityConverter}}"/>
+                    <TextBlock Text="Compiled Expression:" FontWeight="Bold"/>
                     <TextBlock TextWrapping="Wrap">
                         <Run Text="{Binding ExpressionString, Mode=OneWay}" />
                         <Run Text="Length: " Foreground="{Binding ExpressionLengthLimit, Converter={StaticResource BooleanToBrushConverter}}"/>
@@ -336,7 +359,6 @@
             <Button Content="Get Tweets From User" Command="{Binding GetTweetsFromUserCommand}" Grid.Row="1" Margin="5 10 5 0"/>
             <!-- <Button Content="Get Third bla" Grid.Row="2" Margin="5 10 5 0"/> -->
             <!-- <TextBox Text="{Binding BearerToken}" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" /> -->
-
         </Grid>
         <Grid Grid.Row="2" Grid.Column="7"> <!-- Get Tweers TextBoxes -->
             <Grid.RowDefinitions>

@@ -20,6 +20,11 @@ internal class MainWindowViewModel : BindableBaseLight
     public DelegateCommand GetRecentCommand { get; set; }
     public DelegateCommand GetTweetsByIdCommand { get; set; }
     public DelegateCommand GetTweetsFromUserCommand { get; set; }
+    public DelegateCommand KeywordAndOrCommand { get; set; }
+    public DelegateCommand HashtagAndOrCommand { get; set; }
+    public DelegateCommand MentionAndOrCommand { get; set; }
+    public DelegateCommand CashtagAndOrCommand { get; set; }
+
 
     private string _bearerToken = ConfigHelper.GetValue(nameof(BearerToken), Environment.GetEnvironmentVariable("TWITTER_TOKEN"));
 
@@ -34,7 +39,7 @@ internal class MainWindowViewModel : BindableBaseLight
         }
     }
 
-    private string _ruleTag = ConfigHelper.GetValue(nameof(GetTweetByIdTweetId), "TwitterSharpDemo");
+    private string _ruleTag = ConfigHelper.GetValue(nameof(RuleTag), "TwitterSharpDemo");
 
     public string RuleTag
     {
@@ -46,7 +51,7 @@ internal class MainWindowViewModel : BindableBaseLight
                 value = "TwitterSharpDemo";
             }
 
-            ConfigHelper.SetValue(ref _getTweetByIdTweetId, value);
+            ConfigHelper.SetValue(ref _ruleTag, value);
         }
     }
 
@@ -92,12 +97,36 @@ internal class MainWindowViewModel : BindableBaseLight
         set => ConfigHelper.SetValue(ref _keyword, value, propertyChangedAction: () => OnPropertyChanged());
     }
 
+    private AndOrEnum _keywordAndOr = ConfigHelper.GetValue(nameof(KeywordAndOr), AndOrEnum.And);
+    [IsExpressionProperty]
+    public AndOrEnum KeywordAndOr
+    {
+        get => _keywordAndOr;
+        set => ConfigHelper.SetValue(ref _keywordAndOr, value, propertyChangedAction: () => OnPropertyChanged());
+    }
+
     private string _hashtag = ConfigHelper.GetValue(nameof(Hashtag), "Anime");
     [IsExpressionProperty]
     public string Hashtag
     {
         get => _hashtag;
         set => ConfigHelper.SetValue(ref _hashtag, value, propertyChangedAction: () => OnPropertyChanged());
+    }
+
+    private AndOrEnum _hashtagAndOr = ConfigHelper.GetValue(nameof(HashtagAndOr), AndOrEnum.And);
+    [IsExpressionProperty]
+    public AndOrEnum HashtagAndOr
+    {
+        get => _hashtagAndOr;
+        set => ConfigHelper.SetValue(ref _hashtagAndOr, value, propertyChangedAction: () => OnPropertyChanged());
+    }
+
+    private string _from = ConfigHelper.GetValue(nameof(From), String.Empty);
+    [IsExpressionProperty]
+    public string From
+    {
+        get => _from;
+        set => ConfigHelper.SetValue(ref _from, value, propertyChangedAction: () => OnPropertyChanged());
     }
 
     private string _mention = ConfigHelper.GetValue(nameof(Mention), String.Empty);
@@ -108,12 +137,28 @@ internal class MainWindowViewModel : BindableBaseLight
         set => ConfigHelper.SetValue(ref _mention, value, propertyChangedAction: () => OnPropertyChanged());
     }
 
+    private AndOrEnum _mentionAndOr = ConfigHelper.GetValue(nameof(MentionAndOr), AndOrEnum.And);
+    [IsExpressionProperty]
+    public AndOrEnum MentionAndOr
+    {
+        get => _mentionAndOr;
+        set => ConfigHelper.SetValue(ref _mentionAndOr, value, propertyChangedAction: () => OnPropertyChanged());
+    }
+
     private string _cashtag = ConfigHelper.GetValue(nameof(Cashtag), String.Empty);
     [IsExpressionProperty]
     public string Cashtag
     {
         get => _cashtag;
         set => ConfigHelper.SetValue(ref _cashtag, value, propertyChangedAction: () => OnPropertyChanged());
+    }
+
+    private AndOrEnum _cashtagAndOr = ConfigHelper.GetValue(nameof(CashtagAndOr), AndOrEnum.And);
+    [IsExpressionProperty]
+    public AndOrEnum CashtagAndOr
+    {
+        get => _cashtagAndOr;
+        set => ConfigHelper.SetValue(ref _cashtagAndOr, value, propertyChangedAction: () => OnPropertyChanged());
     }
 
     private string _author = ConfigHelper.GetValue(nameof(Author), String.Empty);
@@ -367,6 +412,11 @@ internal class MainWindowViewModel : BindableBaseLight
         GetTweetsByIdCommand = new DelegateCommand(GetTweetsByIdAction);
         GetTweetsFromUserCommand = new DelegateCommand(GetTweetsFromUserAction);
 
+        KeywordAndOrCommand = new DelegateCommand(() => KeywordAndOr = KeywordAndOr == AndOrEnum.And ? AndOrEnum.Or : AndOrEnum.And);
+        HashtagAndOrCommand = new DelegateCommand(() => HashtagAndOr = HashtagAndOr == AndOrEnum.And ? AndOrEnum.Or : AndOrEnum.And);
+        MentionAndOrCommand = new DelegateCommand(() => MentionAndOr = MentionAndOr == AndOrEnum.And ? AndOrEnum.Or : AndOrEnum.And);
+        CashtagAndOrCommand = new DelegateCommand(() => CashtagAndOr = CashtagAndOr == AndOrEnum.And ? AndOrEnum.Or : AndOrEnum.And);
+
         PropertyChanged += OnPropertyChanged;
 
         RefreshRule();
@@ -412,17 +462,38 @@ internal class MainWindowViewModel : BindableBaseLight
     private Expression BuildExpression()
     {
         List<Expression> expressions = new List<Expression>();
+
+        List<Expression> keywordExpressions = new List<Expression>();
+        List<Expression> hashtagExpressions = new List<Expression>();
+        List<Expression> mentionExpressions = new List<Expression>();
+        List<Expression> cachtagExpressions = new List<Expression>();
+
         List<Expression> langExpressions = new List<Expression>();
+        List<Expression> fromExpressions = new List<Expression>();
 
-        Keyword?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)?.ForEach(x => expressions.Add(Expression.Keyword(x)));
-        Hashtag?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)?.ForEach(x => expressions.Add(Expression.Hashtag(x)));
-        Mention?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)?.ForEach(x => expressions.Add(Expression.Mention(x)));
-        Cashtag?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)?.ForEach(x => expressions.Add(Expression.Cashtag(x)));
-
+        Keyword?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)?.ForEach(x => keywordExpressions.Add(Expression.Keyword(x)));
+        Hashtag?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)?.ForEach(x => hashtagExpressions.Add(Expression.Hashtag(x)));
+        Mention?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)?.ForEach(x => mentionExpressions.Add(Expression.Mention(x)));
+        Cashtag?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)?.ForEach(x => cachtagExpressions.Add(Expression.Cashtag(x)));
+        From?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)?.ForEach(x => fromExpressions.Add(Expression.Hashtag(x)));
         Lang?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)?.ForEach(x => langExpressions.Add(Expression.Lang(x)));
+        
+        AddExpression(keywordExpressions, KeywordAndOr);
+        AddExpression(hashtagExpressions, HashtagAndOr);
+        AddExpression(mentionExpressions, MentionAndOr);
+        AddExpression(cachtagExpressions, CashtagAndOr);
+        AddExpression(fromExpressions, AndOrEnum.Or);
+        AddExpression(langExpressions, AndOrEnum.Or);
 
-        if(langExpressions.Any())
-            expressions.Add(langExpressions[0].Or(langExpressions.Skip(1).ToArray()));
+        void AddExpression(List<Expression> searchExpression, AndOrEnum andOr)
+        {
+            if (searchExpression.Any())
+            {
+                expressions.Add(andOr == AndOrEnum.And
+                    ? searchExpression[0].And(searchExpression.Skip(1).ToArray())
+                    : searchExpression[0].Or(searchExpression.Skip(1).ToArray()));
+            }
+        }
 
         if (IsReply != null) expressions.Add(IsReply.Value ? Expression.IsReply() : Expression.IsReply().Negate());
         if (IsRetweet != null) expressions.Add(IsRetweet.Value ? Expression.IsRetweet() : Expression.IsRetweet().Negate());
