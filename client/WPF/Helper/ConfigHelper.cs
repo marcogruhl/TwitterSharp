@@ -2,11 +2,14 @@
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace TwitterSharp.WpfClient.Helper;
 
 public static class ConfigHelper
 {
+    static readonly JsonSerializerOptions _options = new() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull };
+
     public static T GetValue<T>(string propertyName, T defaultValue = default)
     {
         var filePath = $"{GetMainFolder()}{propertyName}.json";
@@ -18,7 +21,7 @@ public static class ConfigHelper
 
         using (var isoStream = new StreamReader(filePath))
         {
-            var returnValue = JsonSerializer.Deserialize<T>(isoStream.ReadToEnd());
+            var returnValue = JsonSerializer.Deserialize<T>(isoStream.ReadToEnd(), _options);
 
             if (returnValue != null)
                 return returnValue;
@@ -31,7 +34,7 @@ public static class ConfigHelper
     {
         var filePath = $"{GetMainFolder()}{propertyName}.json";
 
-        string jsonString = JsonSerializer.Serialize<T>(value);
+        string jsonString = JsonSerializer.Serialize(value, _options);
         File.WriteAllText(filePath, jsonString);
 
         var equal = (outValue != null && !outValue.Equals(value)) || (outValue == null && value != null);

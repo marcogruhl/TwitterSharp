@@ -13,9 +13,9 @@ using TwitterSharp.Request.AdvancedSearch;
 using TwitterSharp.Request.Option;
 using TwitterSharp.Response;
 using TwitterSharp.Response.RStream;
-using TwitterSharp.Response.RTweet;
 using TwitterSharp.WpfClient.Helper;
 using TwitterSharp.WpfClient.ViewModels;
+using Expression = TwitterSharp.Rule.Expression;
 
 namespace TwitterSharp.WpfClient;
 
@@ -29,6 +29,7 @@ internal class Controller : INotifyPropertyChanged, IAsyncDisposable
     public readonly ObservableCollection<RateLimitViewModel> RateLimits = new ();
 
     public event Action<string> Error;
+    public event EventHandler<bool?>? ConnectionChanged;
 
     private int _tweetId = 0;
 
@@ -40,6 +41,7 @@ internal class Controller : INotifyPropertyChanged, IAsyncDisposable
         set
         {
             _isConnected = value;
+            ConnectionChanged?.Invoke(this, _isConnected);
             OnPropertyChanged();
         }
     }
@@ -93,7 +95,9 @@ internal class Controller : INotifyPropertyChanged, IAsyncDisposable
         _client.RateLimitChanged += UpdateRateLimits;
 
         await RefreshRules();
-        await Connect();
+
+        // if(AutoConnect)
+        //     await Connect();
     }
 
     public async Task Connect()
@@ -224,7 +228,7 @@ internal class Controller : INotifyPropertyChanged, IAsyncDisposable
         }
     }
 
-    internal async Task GetRecentTweets(Rule.Expression expression, int amount = 10)
+    internal async Task GetRecentTweets(Expression expression, int amount = 10)
     {
         var searchOptions = new TweetSearchOptions
         {
@@ -246,6 +250,40 @@ internal class Controller : INotifyPropertyChanged, IAsyncDisposable
         {
             Error.Invoke(TwitterExceptionToString(e));
         }
+    }
+
+    internal async Task AddRule(Expression expression, string subscriptionTag)
+    {
+        if (String.IsNullOrEmpty(expression.ToString()))
+            Error.Invoke("expression is empty");
+        if (String.IsNullOrEmpty(subscriptionTag))
+            Error.Invoke("subscriptionTag is empty");
+        
+        try
+        {
+            var existingRules = Rules.Where(x => x.Tag == subscriptionTag);
+            foreach (var existingRule in existingRules)
+            {
+                await DeleteRule(existingRule);
+            }
+
+            await _client.AddTweetStreamAsync(new Request.StreamRequest(expression, subscriptionTag));
+            
+            await RefreshRules();
+        }
+        catch (TwitterException e)
+        {
+            Error.Invoke(TwitterExceptionToString(e));
+        }
+
+        UpdateRateLimits(new RateLimitViewModel("RulesPerStream", 25 - Rules.Count, 25));
+    }
+
+    internal async Task DeleteRule(StreamInfo rule, bool refreshRules = false)
+    {
+        await _client.DeleteTweetStreamAsync(rule.Id);
+        if(refreshRules)
+            await RefreshRules();
     }
 
     private static string TwitterExceptionToString(TwitterException e)

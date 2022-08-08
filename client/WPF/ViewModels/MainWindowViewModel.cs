@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows.Data;
 using TwitterSharp.Response.RStream;
-using TwitterSharp.Response.RTweet;
 using TwitterSharp.Rule;
 using TwitterSharp.WpfClient.Helper;
 
@@ -18,6 +17,9 @@ internal class MainWindowViewModel : BindableBaseLight
     private Controller _controller { get; }
     public DelegateCommand<StreamInfo> DeleteRuleCommand { get; set; }
     public DelegateCommand GetRecentCommand { get; set; }
+    public DelegateCommand AddRuleCommand { get; set; }
+    public DelegateCommand StartStopStreamCommand { get; set; }
+    public DelegateCommand ClearTweetsCommand { get; set; }
     public DelegateCommand GetTweetsByIdCommand { get; set; }
     public DelegateCommand GetTweetsFromUserCommand { get; set; }
     public DelegateCommand KeywordAndOrCommand { get; set; }
@@ -36,6 +38,7 @@ internal class MainWindowViewModel : BindableBaseLight
             Error = String.Empty;
             ConfigHelper.SetValue(ref _bearerToken, value);
             _controller.InitializeAsync(_bearerToken);
+            CheckCanButtonsExecute();
         }
     }
 
@@ -249,7 +252,7 @@ internal class MainWindowViewModel : BindableBaseLight
         set => ConfigHelper.SetValue(ref _placeCountry, value, propertyChangedAction: () => OnPropertyChanged());
     }
 
-    private bool? _isRetweet = ConfigHelper.GetValue(nameof(IsRetweet), false);
+    private bool? _isRetweet = ConfigHelper.GetValue(nameof(IsRetweet), (bool?)false);
     [IsExpressionProperty]
     public bool? IsRetweet
     {
@@ -273,7 +276,7 @@ internal class MainWindowViewModel : BindableBaseLight
         set => ConfigHelper.SetValue(ref _isQuote, value, propertyChangedAction: () => OnPropertyChanged());
     }
 
-    private bool? _isVerified = ConfigHelper.GetValue(nameof(IsVerified), true);
+    private bool? _isVerified = ConfigHelper.GetValue(nameof(IsVerified), (bool?)true);
     [IsExpressionProperty]
     public bool? IsVerified
     {
@@ -399,18 +402,36 @@ internal class MainWindowViewModel : BindableBaseLight
         set => SetProperty(ref _error, value);
     }
 
+    public string StreamButtonText => _controller.IsConnected == null ? "Start Stream" : "Stop Stream";
+    public string StreamStatusText => _controller.IsConnected == null ? "No Streaming" : "Stream Started";
+    
+    private bool? _isConnected;
+
+    public bool? IsConnected
+    {
+        get => _isConnected;
+        set => SetProperty(ref _isConnected, value);
+    }
+
     public MainWindowViewModel()
     {
         _controller = new((s) => Error = s);
+        _controller.ConnectionChanged += OnConnectionChangedAction;
+        IsConnected = _controller.IsConnected;
 
         TweetsCollectionView = new ListCollectionView(_controller.Tweets);
         TweetsCollectionView.SortDescriptions.Add(new SortDescription("Id", ListSortDirection.Descending));
         RulesCollectionView = new ListCollectionView(_controller.Rules);
         RateLimitsCollectionView = new ListCollectionView(_controller.RateLimits);
-        DeleteRuleCommand = new DelegateCommand<StreamInfo>(DeleteRuleAction);
-        GetRecentCommand = new DelegateCommand(GetRecentAction);
-        GetTweetsByIdCommand = new DelegateCommand(GetTweetsByIdAction);
-        GetTweetsFromUserCommand = new DelegateCommand(GetTweetsFromUserAction);
+        DeleteRuleCommand = new DelegateCommand<StreamInfo>(DeleteRuleAction, ButtonCanExecuteAction);
+        GetRecentCommand = new DelegateCommand(GetRecentAction, ButtonCanExecuteAction);
+        AddRuleCommand = new DelegateCommand(AddRuleAction, ButtonCanExecuteAction);
+        StartStopStreamCommand = new DelegateCommand(StartStopStreamAction, ButtonCanExecuteAction);
+        ClearTweetsCommand = new DelegateCommand(ClearTweetsAction, ButtonCanExecuteAction);
+        GetTweetsByIdCommand = new DelegateCommand(GetTweetsByIdAction, ButtonCanExecuteAction);
+        GetTweetsFromUserCommand = new DelegateCommand(GetTweetsFromUserAction, ButtonCanExecuteAction);
+
+        CheckCanButtonsExecute();
 
         KeywordAndOrCommand = new DelegateCommand(() => KeywordAndOr = KeywordAndOr == AndOrEnum.And ? AndOrEnum.Or : AndOrEnum.And);
         HashtagAndOrCommand = new DelegateCommand(() => HashtagAndOr = HashtagAndOr == AndOrEnum.And ? AndOrEnum.Or : AndOrEnum.And);
@@ -422,27 +443,73 @@ internal class MainWindowViewModel : BindableBaseLight
         RefreshRule();
     }
 
-    private void GetRecentAction()
+    private void OnConnectionChangedAction(object? sender, bool? e)
     {
-        Error = String.Empty;
-        _controller.GetRecentTweets(BuildExpression());
+        OnPropertyChanged(nameof(StreamButtonText));
+        OnPropertyChanged(nameof(StreamStatusText));
+        IsConnected = _controller.IsConnected;
     }
 
-    private void GetTweetsByIdAction()
+    private bool ButtonCanExecuteAction()
     {
-        Error = String.Empty;
-        _controller.GetTweetsById(GetTweetByIdTweetId);
+        return !String.IsNullOrEmpty(BearerToken);
     }
 
-    private void GetTweetsFromUserAction()
+    private void CheckCanButtonsExecute()
     {
-        Error = String.Empty;
-        _controller.GetTweetsFromUser(GetTweetsFromUserUserId);
+        DeleteRuleCommand.RaiseCanExecuteChanged();
+        GetRecentCommand.RaiseCanExecuteChanged();
+        AddRuleCommand.RaiseCanExecuteChanged();
+        StartStopStreamCommand.RaiseCanExecuteChanged();
+        ClearTweetsCommand.RaiseCanExecuteChanged();
+        GetTweetsByIdCommand.RaiseCanExecuteChanged();
+        GetTweetsFromUserCommand.RaiseCanExecuteChanged();
     }
 
-    private void DeleteRuleAction(StreamInfo obj)
+    private async void ClearTweetsAction()
     {
+        _controller.ClearTweets();
+    }
 
+    private async void StartStopStreamAction()
+    {
+        if(_controller.IsConnected.HasValue && _controller.IsConnected.Value)
+        {
+            _controller.Disconnect();
+        }
+        else
+        {
+            _controller.Connect();
+        }
+    }
+
+    private async void AddRuleAction()
+    {
+        Error = String.Empty;
+        await _controller.AddRule(BuildExpression(), RuleTag);
+    }
+
+    private async void GetRecentAction()
+    {
+        Error = String.Empty;
+        await _controller.GetRecentTweets(BuildExpression());
+    }
+
+    private async void GetTweetsByIdAction()
+    {
+        Error = String.Empty;
+        await _controller.GetTweetsById(GetTweetByIdTweetId);
+    }
+
+    private async void GetTweetsFromUserAction()
+    {
+        Error = String.Empty;
+        await _controller.GetTweetsFromUser(GetTweetsFromUserUserId);
+    }
+
+    private async void DeleteRuleAction(StreamInfo rule)
+    {
+        await _controller.DeleteRule(rule, true);
     }
 
     private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -475,7 +542,7 @@ internal class MainWindowViewModel : BindableBaseLight
         Hashtag?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)?.ForEach(x => hashtagExpressions.Add(Expression.Hashtag(x)));
         Mention?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)?.ForEach(x => mentionExpressions.Add(Expression.Mention(x)));
         Cashtag?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)?.ForEach(x => cachtagExpressions.Add(Expression.Cashtag(x)));
-        From?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)?.ForEach(x => fromExpressions.Add(Expression.Hashtag(x)));
+        From?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)?.ForEach(x => fromExpressions.Add(Expression.Author(x)));
         Lang?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)?.ForEach(x => langExpressions.Add(Expression.Lang(x)));
         
         AddExpression(keywordExpressions, KeywordAndOr);

@@ -12,31 +12,14 @@ namespace TwitterSharp.WpfClient.Helper;
 /// <remarks>
 /// Copied from https://instance-factory.com/?p=785
 /// Copied from http://social.msdn.microsoft.com/Forums/en-US/f457c906-56d3-49c7-91c4-cc35a6ec5d35/icommand-and-mvvm
+/// Copied from https://stackoverflow.com/a/31807633/9624651
 /// </remarks>
-public class DelegateCommand<T> : ICommand
+public class DelegateCommand<T> : BaseExecute, ICommand
 {
-    #region Private Properties
-
     /// <summary>
     /// Gets / sets the action to be executed.
     /// </summary>
     private Action<T> ExecuteAction { get; set; }
-
-    #endregion Private Properties
-
-
-    #region Public Events
-
-    /// <summary>
-    /// Occurs when changes occur that affect whether 
-    /// the command should execute.
-    /// </summary>
-    public event EventHandler CanExecuteChanged;
-
-    #endregion Public Events
-
-
-    #region Public Constructors
 
     /// <summary>
     /// Initializes a new instance of <see cref="DelegateCommand"/>
@@ -50,22 +33,10 @@ public class DelegateCommand<T> : ICommand
         ExecuteAction = executeAction;
     }
 
-    #endregion Public Constructors
-
-
-    #region Public Methods
-
-    /// <summary>
-    /// Determines whether the command can execute in its current state.
-    /// </summary>
-    /// <param name="parameter">Data used by the command.</param>
-    /// <returns>
-    /// <c>true</c> if this command can be executed; 
-    /// otherwise, <c>false</c>.
-    /// </returns>
-    public bool CanExecute(object parameter)
+    public DelegateCommand(Action<T> executeAction,Func<bool> canExecuteFunc)
     {
-        return true;
+        ExecuteAction = executeAction;
+        _canExecuteFunc = canExecuteFunc;
     }
 
     /// <summary>
@@ -76,34 +47,14 @@ public class DelegateCommand<T> : ICommand
     {
         ExecuteAction((T) Convert.ChangeType(parameter, typeof(T)));
     }
-
-    #endregion Public Methods
 }
 
-public class DelegateCommand : ICommand
+public class DelegateCommand :  BaseExecute, ICommand
 {
-    #region Private Properties
-
     /// <summary>
     /// Gets / sets the action to be executed.
     /// </summary>
     private Action ExecuteAction { get; set; }
-
-    #endregion Private Properties
-
-
-    #region Public Events
-
-    /// <summary>
-    /// Occurs when changes occur that affect whether 
-    /// the command should execute.
-    /// </summary>
-    public event EventHandler CanExecuteChanged;
-
-    #endregion Public Events
-
-
-    #region Public Constructors
 
     /// <summary>
     /// Initializes a new instance of <see cref="DelegateCommand"/>
@@ -117,10 +68,31 @@ public class DelegateCommand : ICommand
         ExecuteAction = executeAction;
     }
 
-    #endregion Public Constructors
+    public DelegateCommand(Action executeAction,Func<bool> canExecuteFunc)
+    {
+        ExecuteAction = executeAction;
+        _canExecuteFunc = canExecuteFunc;
+    }
 
+    /// <summary>
+    /// Invokes the method to be called.
+    /// </summary>
+    /// <param name="parameter">Data used by the command.</param>
+    public void Execute(object? parameter)
+    {
+        ExecuteAction();
+    }
+}
 
-    #region Public Methods
+public class BaseExecute
+{
+    protected Func<bool> _canExecuteFunc;
+    
+    /// <summary>
+    /// Occurs when changes occur that affect whether 
+    /// the command should execute.
+    /// </summary>
+    public event EventHandler CanExecuteChanged;
 
     /// <summary>
     /// Determines whether the command can execute in its current state.
@@ -132,17 +104,14 @@ public class DelegateCommand : ICommand
     /// </returns>
     public bool CanExecute(object parameter)
     {
+        if (_canExecuteFunc != null)
+            return _canExecuteFunc();
         return true;
     }
 
-    /// <summary>
-    /// Invokes the method to be called.
-    /// </summary>
-    /// <param name="parameter">Data used by the command.</param>
-    public void Execute(object? parameter)
+    public void RaiseCanExecuteChanged()
     {
-        ExecuteAction();
+        if(CanExecuteChanged != null)
+            CanExecuteChanged(this, new EventArgs());
     }
-
-    #endregion Public Methods
 }
