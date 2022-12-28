@@ -435,6 +435,7 @@ namespace TwitterSharp.UnitTests
             Assert.IsNull(a.Source);
         }
 
+        // Source is empty (28.12.2022): https://twittercommunity.com/t/twitter-api-v2-no-source-field-returned/181324
         [TestMethod]
         public async Task GetTweetWithSource()
         {

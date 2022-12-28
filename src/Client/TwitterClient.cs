@@ -7,6 +7,7 @@ using System.Net.Http.Headers;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
@@ -157,11 +158,11 @@ namespace TwitterSharp.Client
             return answer;
         }
 
-        private void BuildRateLimit(HttpResponseHeaders headers, Endpoint endpoint)
+        private RateLimit BuildRateLimit(HttpResponseHeaders headers, Endpoint endpoint)
         {
             if (headers == null)
             {
-                return;
+                return null;
             }
 
             var rateLimit = new RateLimit(endpoint);
@@ -182,6 +183,7 @@ namespace TwitterSharp.Client
             }
 
             RateLimitChanged?.Invoke(this, rateLimit);
+            return rateLimit;
         }
 
         #endregion AdvancedParsing
@@ -220,13 +222,7 @@ namespace TwitterSharp.Client
         /// Get the latest tweets of an user
         /// </summary>
         /// <param name="userId">Username of the user you want the tweets of</param>
-        public async Task<RArray<Tweet>> GetTweetsFromUserIdAsync(string userId, TweetSearchOptions options = null)
-        {
-            options ??= new(); 
-            var query = _baseUrl + "users/" + HttpUtility.HtmlEncode(userId) + "/tweets?" + options.Build(true);
-            return await RequestList<Tweet>(query, Endpoint.UserTweetTimeline);
-        }
-
+        public async Task<RArray<Tweet>> GetTweetsFromUserIdAsync(string userId, TweetSearchOptions options = null) => await GetRequest<Tweet>(new []{ userId }, Endpoint.UserTweetTimeline, options);
 
         /// <summary>
         /// Get the latest tweets for an expression
@@ -239,7 +235,7 @@ namespace TwitterSharp.Client
             var query = _baseUrl + "tweets/search/recent?query=" + HttpUtility.UrlEncode(expression.ToString()) + "&" + options.Build(true);
             return await RequestList<Tweet>(query, Endpoint.RecentSearch);
         }
-        
+
         /// <summary>
         /// This endpoint is only available to those users who have been approved for <seealso cref="https://developer.twitter.com/en/docs/twitter-api/getting-started/about-twitter-api#v2-access-level">Academic Research access</seealso>.
         /// The full-archive search endpoint returns the complete history of public Tweets matching a search query; since the first Tweet was created March 26, 2006.
@@ -471,10 +467,33 @@ namespace TwitterSharp.Client
         }
 
         #endregion Users
-
-
+        
         #region General
 
+        /// <summary>
+        /// General method for getting object based on endpoint
+        /// </summary>
+        /// <returns></returns>
+        private async Task<RArray<T>> GetRequest<T>(string[] ids, Endpoint endpoint, TweetSearchOptions options = null)
+        {
+
+            var url = endpoint.GetAttribute<EndpointAttribute>().Url;
+
+            // find ids like :id or :tweet_id and replace them in order with the ids-array
+            foreach (var match in Regex.Matches(url, @":([a-z|_]*)").Select((name, index) => (name, index)))
+            {
+                url = url.Replace(match.name.Value, HttpUtility.HtmlEncode(ids[match.index]));
+            }
+
+            // replace /2/ TEMP HACK FOR BASE URL OR ENDPOINT URL!? TODO: If all methods are generalized, remove and change base url
+            url = url.Replace("/2/", String.Empty);
+
+            url += (options == null ? "" : "?");
+
+            options ??= new();
+
+            return await RequestList<T>(_baseUrl + url + options.Build(true), endpoint);
+        }
 
         /// <summary>
         /// General method for getting the next page with meta token
@@ -482,14 +501,15 @@ namespace TwitterSharp.Client
         /// <returns></returns>
         private async Task<RArray<T>> RequestList<T>(string baseQuery, Endpoint endpoint, string token = null)
         {
-            var res = await _httpClient.GetAsync(baseQuery + (string.IsNullOrEmpty(token) ? "" : (!baseQuery.EndsWith("?") ? "&" : "") +  "pagination_token=" + token));
+            var res = await _httpClient.GetAsync(baseQuery + (string.IsNullOrEmpty(token) ? "" : (baseQuery.EndsWith("?") ? "" : baseQuery.Contains("?") ? "&" : "?") +  "pagination_token=" + token));
             var data = ParseArrayData<T>(await res.Content.ReadAsStringAsync());
-            BuildRateLimit(res.Headers, endpoint);
+            ;
             return new()
             {
                 Data = data.Data,
                 NextAsync = data.Meta.NextToken == null ? null : async () => await RequestList<T>(baseQuery, endpoint, data.Meta.NextToken),
-                PreviousAsync = data.Meta.PreviousToken == null ? null : async () => await RequestList<T>(baseQuery, endpoint, data.Meta.PreviousToken)
+                PreviousAsync = data.Meta.PreviousToken == null ? null : async () => await RequestList<T>(baseQuery, endpoint, data.Meta.PreviousToken),
+                RateLimit = BuildRateLimit(res.Headers, endpoint)
             };
         }
 

@@ -8,6 +8,6 @@ namespace TwitterSharp.Response
         public T[] Data { get; set; }
         public Func<Task<RArray<T>>> NextAsync { init; get; }
         public Func<Task<RArray<T>>> PreviousAsync { init; get; }
-
+        public RateLimit RateLimit { init; get; }
     }
 }
