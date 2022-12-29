@@ -16,9 +16,8 @@ namespace TwitterSharp.UnitTests
         {
             var client = new TwitterClient(Environment.GetEnvironmentVariable("TWITTER_TOKEN"));
             var answer = await client.GetTweetsAsync(new[] { "1237543996861251586" });
-            Assert.IsTrue(answer.Length == 1);
-            var a = answer[0];
-            Assert.IsNull(a.Attachments);
+            Assert.IsTrue(answer.Data.Length == 1);
+            Assert.IsNull(answer.Data[0].Attachments);
         }
 
         [TestMethod]
@@ -29,8 +28,8 @@ namespace TwitterSharp.UnitTests
             {
                 TweetOptions = new[] { TweetOption.Attachments_Ids }
             });
-            Assert.IsTrue(answer.Length == 1);
-            var a = answer[0];
+            Assert.IsTrue(answer.Data.Length == 1);
+            var a = answer.Data[0];
             Assert.IsNotNull(a.Attachments);
             Assert.IsNotNull(a.Attachments.Media);
             Assert.AreEqual(1, a.Attachments.Media.Length);
@@ -47,8 +46,8 @@ namespace TwitterSharp.UnitTests
             {
                 TweetOptions = new[] { TweetOption.Attachments }
             });
-            Assert.IsTrue(answer.Length == 1);
-            var a = answer[0];
+            Assert.IsTrue(answer.Data.Length == 1);
+            var a = answer.Data[0];
             Assert.IsNotNull(a.Attachments);
             Assert.IsNotNull(a.Attachments.Media);
             Assert.AreEqual(1, a.Attachments.Media.Length);
@@ -67,8 +66,8 @@ namespace TwitterSharp.UnitTests
                 TweetOptions = new[] { TweetOption.Attachments },
                 MediaOptions = new[] { MediaOption.Preview_Image_Url }
             });
-            Assert.IsTrue(answer.Length == 1);
-            var a = answer[0];
+            Assert.IsTrue(answer.Data.Length == 1);
+            var a = answer.Data[0];
             Assert.IsNotNull(a.Attachments);
             Assert.IsNotNull(a.Attachments.Media);
             Assert.AreEqual(1, a.Attachments.Media.Length);

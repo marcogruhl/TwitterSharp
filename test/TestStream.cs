@@ -21,12 +21,10 @@ namespace TwitterSharp.UnitTests
 
             var client = new TwitterClient(Environment.GetEnvironmentVariable("TWITTER_TOKEN"));
             
-            client.RateLimitChanged += (_, rateLimit) =>
-            {
-                rateLimitEvents.Add(rateLimit);
-            };
+            var answer = await client.GetInfoTweetStreamAsync();
+            rateLimitEvents.Add(answer.RateLimit);
+            var res = answer.Data;
 
-            var res = await client.GetInfoTweetStreamAsync();
             var elem = res.FirstOrDefault(x => x.Tag == "TwitterSharp UnitTest");
 
             var objectiveCount = res.Length + 1;
@@ -44,7 +42,9 @@ namespace TwitterSharp.UnitTests
             Assert.IsTrue(res[0].Tag == "TwitterSharp UnitTest");
             Assert.IsTrue(res[0].Value.ToString() == exp.ToString());
 
-            res = await client.GetInfoTweetStreamAsync();
+            answer = await client.GetInfoTweetStreamAsync();
+            rateLimitEvents.Add(answer.RateLimit);
+            res = answer.Data;
             
             Assert.IsTrue(CheckGetInfoTweetStreamAsyncRateLimit(rateLimitEvents));
 
@@ -58,7 +58,9 @@ namespace TwitterSharp.UnitTests
 
             Assert.IsTrue(await client.DeleteTweetStreamAsync(elem.Id) == 1);
 
-            res = await client.GetInfoTweetStreamAsync();
+            answer = await client.GetInfoTweetStreamAsync();
+            rateLimitEvents.Add(answer.RateLimit);
+            res = answer.Data;
 
             Assert.IsTrue(CheckGetInfoTweetStreamAsyncRateLimit(rateLimitEvents));
 
@@ -75,28 +77,23 @@ namespace TwitterSharp.UnitTests
             var streamFinished = false;
             TaskStatus streamResult = TaskStatus.Created;
             
-            client.RateLimitChanged += (_, _) =>
-            {
-                requestSucceeded = true;
-            };
-
             _ = Task.Run(async () =>
             {
-                await client.NextTweetStreamAsync(_ => { });
+                await client.NextTweetStreamAsync(_ => { }, _ => requestSucceeded = true);
             }).ContinueWith(t =>
             {
                 streamResult = t.Status;
                 streamFinished = true;
             });
-
+        
             // Test - IsStreaming
             while (!requestSucceeded)
             {
                 await Task.Delay(25);
             }
-
+        
             Assert.IsTrue(TwitterClient.IsTweetStreaming);
-
+        
             // Test - two streams same client -> Exception
             try
             {
@@ -106,9 +103,9 @@ namespace TwitterSharp.UnitTests
             {
                 Assert.IsInstanceOfType(e, typeof(TwitterException));
             }
-
+        
             Assert.IsTrue(TwitterClient.IsTweetStreaming);
-
+        
             // Test - two streams - different client -> Exception
             var client2 = new TwitterClient(Environment.GetEnvironmentVariable("TWITTER_TOKEN"));
             try
@@ -119,17 +116,17 @@ namespace TwitterSharp.UnitTests
             {
                 Assert.IsInstanceOfType(e, typeof(TwitterException));
             }
-
+        
             // Test - Cancel stream
             client.CancelTweetStream();
-
+        
             Assert.IsFalse(TwitterClient.IsTweetStreaming);
-
+        
             while (!streamFinished)
             {
                 await Task.Delay(25);
             }
-
+        
             Assert.IsTrue(streamResult == TaskStatus.RanToCompletion);
         }
 
