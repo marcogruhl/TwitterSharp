@@ -103,6 +103,87 @@ namespace TwitterSharp.UnitTests
         }
 
         [TestMethod]
+        public async Task GetMentionsForUserAsync()
+        {
+            var client = new TwitterClient(Environment.GetEnvironmentVariable("TWITTER_TOKEN"));
+            var answer = await client.GetMentionsForUserAsync("1109748792721432577", new TweetSearchOptions
+            {
+                UserOptions = new [] { UserOption.Created_At },
+            });
+            Assert.AreEqual(10, answer.Data.Length);
+            Assert.IsNotNull(answer.Data[0].Author.CreatedAt);
+        }
+
+        [TestMethod]
+        public async Task GetTimelineForUserAsync()
+        {
+            var client = new TwitterClient(Environment.GetEnvironmentVariable("TWITTER_TOKEN"));
+            var answer = await client.GetTimelineForUserAsync("OWN_USER_ID", new TweetSearchOptions
+            {
+                UserOptions = new [] { UserOption.Created_At },
+            });
+
+            // TODO: ERROR: Only own user id!? -> check for Error?
+
+            Assert.AreEqual(10, answer.Data.Length);
+            Assert.IsNull(answer.Data[0].Author);
+        }
+        
+        [TestMethod]
+        public async Task GetAllTweets_FAIL_NON_ACADEMIC()
+        {
+            var hashtag = "Test";
+            var client = new TwitterClient(Environment.GetEnvironmentVariable("TWITTER_TOKEN"));
+            var a = await client.GetAllTweets(Expression.Hashtag(hashtag).And(Expression.IsRetweet().Negate()));
+            
+            Assert.IsTrue(a.Data.All(x => x.Text.Contains("#"+hashtag, StringComparison.InvariantCultureIgnoreCase)));
+        }
+
+        [TestMethod]
+        public async Task GetTweetCountAsync()
+        {
+            var hashtag = "Test";
+            var client = new TwitterClient(Environment.GetEnvironmentVariable("TWITTER_TOKEN"));
+            var a = await client.GetTweetCountAsync(Expression.Hashtag(hashtag).And(Expression.IsRetweet().Negate()));
+            Assert.IsTrue(a.Data.Sum(x => x.TweetCount) > 0);
+        }
+        
+        [TestMethod]
+        public async Task GetTweetCountFullArchiveAsync_FAIL_NON_ACADEMIC()
+        {
+            var hashtag = "Test";
+            var client = new TwitterClient(Environment.GetEnvironmentVariable("TWITTER_TOKEN"));
+            var a = await client.GetTweetCountFullArchiveAsync(Expression.Hashtag(hashtag).And(Expression.IsRetweet().Negate()));
+            Assert.IsTrue(a.Data.Sum(x => x.TweetCount) > 0);
+        } 
+
+        [TestMethod]
+        public async Task GetLikedTweetsForUserAsync()
+        {
+            var client = new TwitterClient(Environment.GetEnvironmentVariable("TWITTER_TOKEN"));
+            var answer = await client.GetLikedTweetsForUserAsync("1109748792721432577", new TweetSearchOptions
+            {
+                Limit = 10,
+                UserOptions = new [] { UserOption.Created_At },
+            });
+            Assert.AreEqual(10, answer.Data.Length);
+            Assert.IsNotNull(answer.Data[0].Author);
+        }        
+        
+        [TestMethod]
+        public async Task GetQuotesForTweetAsync()
+        {
+            var client = new TwitterClient(Environment.GetEnvironmentVariable("TWITTER_TOKEN"));
+            var answer = await client.GetQuotesForTweetAsync("1565318587736285184", new TweetSearchOptions
+            {
+                Limit = 10,
+                UserOptions = new [] { UserOption.Created_At },
+            });
+            Assert.IsTrue(answer.Data.Length > 0);
+            Assert.IsNotNull(answer.Data[0].Author);
+        }
+
+        [TestMethod]
         public async Task GetTweetsFromUserIdWithSinceIdAsync()
         {
             var client = new TwitterClient(Environment.GetEnvironmentVariable("TWITTER_TOKEN"));
@@ -483,7 +564,7 @@ namespace TwitterSharp.UnitTests
             var client = new TwitterClient(Environment.GetEnvironmentVariable("TWITTER_TOKEN"));
 
             // note: retweets are truncated at 140 characters, so i had to exclude them for making the check reliable
-            var a = await client.GetRecentTweets(Expression.Hashtag(hashtag).And(Expression.IsRetweet().Negate()));
+            var a = await client.GetRecentTweetsAsync(Expression.Hashtag(hashtag).And(Expression.IsRetweet().Negate()));
             
             Assert.IsTrue(a.Data.All(x => x.Text.Contains("#"+hashtag, StringComparison.InvariantCultureIgnoreCase)));
         }
