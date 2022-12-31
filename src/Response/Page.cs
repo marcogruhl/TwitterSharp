@@ -7,5 +7,13 @@ namespace TwitterSharp.Response
     {
         public Func<Task<Page<T>>> NextAsync { init; get; }
         public Func<Task<Page<T>>> PreviousAsync { init; get; }
+
+        public Page(T data) : base(data)
+        {
+        }
+
+        public Page(T[] data) : base(data)
+        {
+        }
     }
 }

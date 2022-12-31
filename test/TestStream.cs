@@ -21,13 +21,12 @@ namespace TwitterSharp.UnitTests
 
             var client = new TwitterClient(Environment.GetEnvironmentVariable("TWITTER_TOKEN"));
             
-            var answer = await client.GetInfoTweetStreamAsync();
-            rateLimitEvents.Add(answer.RateLimit);
-            var res = answer.Data;
+            var res = await client.GetInfoTweetStreamAsync();
+            rateLimitEvents.Add(res.RateLimit);
 
             var elem = res.FirstOrDefault(x => x.Tag == "TwitterSharp UnitTest");
 
-            var objectiveCount = res.Length + 1;
+            var objectiveCount = res.Count + 1;
 
             if (elem != null)
             {
@@ -36,20 +35,19 @@ namespace TwitterSharp.UnitTests
             }
 
             var exp = Expression.Author("arurandeisu");
-            res = await client.AddTweetStreamAsync(new StreamRequest(exp, "TwitterSharp UnitTest"));
+            var addRes = await client.AddTweetStreamAsync(new StreamRequest(exp, "TwitterSharp UnitTest"));
 
-            Assert.IsTrue(res.Length == 1);
-            Assert.IsTrue(res[0].Tag == "TwitterSharp UnitTest");
-            Assert.IsTrue(res[0].Value.ToString() == exp.ToString());
+            Assert.IsTrue(addRes.Length == 1);
+            Assert.IsTrue(addRes[0].Tag == "TwitterSharp UnitTest");
+            Assert.IsTrue(addRes[0].Value.ToString() == exp.ToString());
 
-            answer = await client.GetInfoTweetStreamAsync();
-            rateLimitEvents.Add(answer.RateLimit);
-            res = answer.Data;
+            res = await client.GetInfoTweetStreamAsync();
+            rateLimitEvents.Add(res.RateLimit);
             
             Assert.IsTrue(CheckGetInfoTweetStreamAsyncRateLimit(rateLimitEvents));
 
             elem = res.FirstOrDefault(x => x.Tag == "TwitterSharp UnitTest");
-            Assert.IsTrue(res.Length == objectiveCount);
+            Assert.IsTrue(res.Count == objectiveCount);
             Assert.IsNotNull(elem.Id);
             Assert.IsTrue(elem.Tag == "TwitterSharp UnitTest");
             Assert.IsTrue(elem.Value.ToString() == exp.ToString());
@@ -58,13 +56,12 @@ namespace TwitterSharp.UnitTests
 
             Assert.IsTrue(await client.DeleteTweetStreamAsync(elem.Id) == 1);
 
-            answer = await client.GetInfoTweetStreamAsync();
-            rateLimitEvents.Add(answer.RateLimit);
-            res = answer.Data;
+            res = await client.GetInfoTweetStreamAsync();
+            rateLimitEvents.Add(res.RateLimit);
 
             Assert.IsTrue(CheckGetInfoTweetStreamAsyncRateLimit(rateLimitEvents));
 
-            Assert.IsTrue(res.Length == objectiveCount);
+            Assert.IsTrue(res.Count == objectiveCount);
             elem = res.FirstOrDefault(x => x.Tag == "TwitterSharp UnitTest");
             Assert.IsNull(elem);
         }

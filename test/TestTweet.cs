@@ -18,9 +18,8 @@ namespace TwitterSharp.UnitTests
         public async Task GetTweetByIdsAsync()
         {
             var client = new TwitterClient(Environment.GetEnvironmentVariable("TWITTER_TOKEN"));
-            var a = await client.GetTweetsAsync(new[] { "1389189291582967809" });
-            var answer = a.Data;
-            Assert.IsTrue(answer.Length == 1);
+            var answer = await client.GetTweetsAsync(new[] { "1389189291582967809" });
+            Assert.IsTrue(answer.Count == 1);
             Assert.AreEqual("1389189291582967809", answer[0].Id);
             Assert.AreEqual("たのしみ！！\uD83D\uDC93 https://t.co/DgBYVYr9lN", answer[0].Text);
             Assert.IsNull(answer[0].Author);
@@ -31,8 +30,7 @@ namespace TwitterSharp.UnitTests
         public async Task GetTweetByIdAsync()
         {
             var client = new TwitterClient(Environment.GetEnvironmentVariable("TWITTER_TOKEN"));
-            var a = await client.GetTweetAsync("1389189291582967809");
-            var answer = a.Data;
+            var answer = await client.GetTweetAsync("1389189291582967809");
             Assert.AreEqual("1389189291582967809", answer.Id);
             Assert.AreEqual("たのしみ！！\uD83D\uDC93 https://t.co/DgBYVYr9lN", answer.Text);
             Assert.IsNull(answer.Author);
@@ -43,13 +41,12 @@ namespace TwitterSharp.UnitTests
         public async Task GetTweetByIdsWithAuthorAndSensitivityAsync()
         {
             var client = new TwitterClient(Environment.GetEnvironmentVariable("TWITTER_TOKEN"));
-            var a = await client.GetTweetsAsync(new[] { "1389189291582967809" }, new TweetSearchOptions
+            var answer = await client.GetTweetsAsync(new[] { "1389189291582967809" }, new TweetSearchOptions
             {
                 TweetOptions = new[] { TweetOption.Possibly_Sensitive },
                 UserOptions = Array.Empty<UserOption>()
             });
-            var answer = a.Data;
-            Assert.IsTrue(answer.Length == 1);
+            Assert.IsTrue(answer.Count == 1);
             Assert.AreEqual("1389189291582967809", answer[0].Id);
             Assert.AreEqual("たのしみ！！\uD83D\uDC93 https://t.co/DgBYVYr9lN", answer[0].Text);
             Assert.IsNotNull(answer[0].Author);
@@ -62,9 +59,8 @@ namespace TwitterSharp.UnitTests
         public async Task GetTweetsAsync()
         {
             var client = new TwitterClient(Environment.GetEnvironmentVariable("TWITTER_TOKEN"));
-            var a = await client.GetTweetsAsync(new[] { "1389330151779930113", "1389331863102128130" });
-            var answer = a.Data;
-            Assert.IsTrue(answer.Length == 2);
+            var answer = await client.GetTweetsAsync(new[] { "1389330151779930113", "1389331863102128130" });
+            Assert.IsTrue(answer.Count == 2);
             Assert.AreEqual("1389330151779930113", answer[0].Id);
             Assert.AreEqual("ねむくなーい！ねむくないねむくない！ドタドタドタドタ", answer[0].Text);
             Assert.IsNull(answer[0].Author);
@@ -77,12 +73,11 @@ namespace TwitterSharp.UnitTests
         public async Task GetTweetsByIdsWithAuthorAsync()
         {
             var client = new TwitterClient(Environment.GetEnvironmentVariable("TWITTER_TOKEN"));
-            var a = await client.GetTweetsAsync(new[] { "1389330151779930113", "1389331863102128130" }, new()
+            var answer = await client.GetTweetsAsync(new[] { "1389330151779930113", "1389331863102128130" }, new()
             {
                 UserOptions = Array.Empty<UserOption>()
             });
-            var answer = a.Data;
-            Assert.IsTrue(answer.Length == 2);
+            Assert.IsTrue(answer.Count == 2);
             Assert.AreEqual("1389330151779930113", answer[0].Id);
             Assert.AreEqual("ねむくなーい！ねむくないねむくない！ドタドタドタドタ", answer[0].Text);
             Assert.IsNotNull(answer[0].Author);
@@ -98,35 +93,44 @@ namespace TwitterSharp.UnitTests
         {
             var client = new TwitterClient(Environment.GetEnvironmentVariable("TWITTER_TOKEN"));
             var answer = await client.GetTweetsFromUserIdAsync("1109748792721432577");
-            Assert.AreEqual(10, answer.Data.Length);
-            Assert.IsNull(answer.Data[0].Author);
+            Assert.AreEqual(10, answer.Count);
+            Assert.IsNull(answer[0].Author);
         }
 
         [TestMethod]
         public async Task GetMentionsForUserAsync()
         {
             var client = new TwitterClient(Environment.GetEnvironmentVariable("TWITTER_TOKEN"));
-            var answer = await client.GetMentionsForUserAsync("1109748792721432577", new TweetSearchOptions
+
+            var answer = await client.GetMentionsForUserAsync("2244994945", new TweetSearchOptions
             {
+                TweetOptions = new [] { TweetOption.Created_At },
                 UserOptions = new [] { UserOption.Created_At },
             });
-            Assert.AreEqual(10, answer.Data.Length);
-            Assert.IsNotNull(answer.Data[0].Author.CreatedAt);
+            Assert.IsTrue(answer.Count > 0);
+            Assert.IsNotNull(answer[0].Author.CreatedAt);
         }
 
         [TestMethod]
         public async Task GetTimelineForUserAsync()
         {
             var client = new TwitterClient(Environment.GetEnvironmentVariable("TWITTER_TOKEN"));
-            var answer = await client.GetTimelineForUserAsync("OWN_USER_ID", new TweetSearchOptions
+
+            // var client = new TwitterClient(
+            //     Environment.GetEnvironmentVariable("TWITTER_CONSUMER_KEY"),
+            //     Environment.GetEnvironmentVariable("TWITTER_CONSUMER_SECRET"),
+            //     Environment.GetEnvironmentVariable("TWITTER_ACCESS_TOKEN"),
+            //     Environment.GetEnvironmentVariable("TWITTER_ACCESS_SECRET"));
+
+            var answer = await client.GetTimelineForUserAsync("OWN_USER_ID?", new TweetSearchOptions
             {
                 UserOptions = new [] { UserOption.Created_At },
             });
 
-            // TODO: ERROR: Only own user id!? -> check for Error?
+            // TODO: ERROR: Only own user id!? -> check for Error? Wrong Auth?
 
-            Assert.AreEqual(10, answer.Data.Length);
-            Assert.IsNull(answer.Data[0].Author);
+            Assert.AreEqual(10, answer.Count);
+            Assert.IsNull(answer[0].Author);
         }
         
         [TestMethod]
@@ -136,7 +140,7 @@ namespace TwitterSharp.UnitTests
             var client = new TwitterClient(Environment.GetEnvironmentVariable("TWITTER_TOKEN"));
             var a = await client.GetAllTweets(Expression.Hashtag(hashtag).And(Expression.IsRetweet().Negate()));
             
-            Assert.IsTrue(a.Data.All(x => x.Text.Contains("#"+hashtag, StringComparison.InvariantCultureIgnoreCase)));
+            Assert.IsTrue(a.All(x => x.Text.Contains("#"+hashtag, StringComparison.InvariantCultureIgnoreCase)));
         }
 
         [TestMethod]
@@ -145,7 +149,7 @@ namespace TwitterSharp.UnitTests
             var hashtag = "Test";
             var client = new TwitterClient(Environment.GetEnvironmentVariable("TWITTER_TOKEN"));
             var a = await client.GetTweetCountAsync(Expression.Hashtag(hashtag).And(Expression.IsRetweet().Negate()));
-            Assert.IsTrue(a.Data.Sum(x => x.TweetCount) > 0);
+            Assert.IsTrue(a.Sum(x => x.TweetCount) > 0);
         }
         
         [TestMethod]
@@ -154,7 +158,7 @@ namespace TwitterSharp.UnitTests
             var hashtag = "Test";
             var client = new TwitterClient(Environment.GetEnvironmentVariable("TWITTER_TOKEN"));
             var a = await client.GetTweetCountFullArchiveAsync(Expression.Hashtag(hashtag).And(Expression.IsRetweet().Negate()));
-            Assert.IsTrue(a.Data.Sum(x => x.TweetCount) > 0);
+            Assert.IsTrue(a.Sum(x => x.TweetCount) > 0);
         } 
 
         [TestMethod]
@@ -166,8 +170,8 @@ namespace TwitterSharp.UnitTests
                 Limit = 10,
                 UserOptions = new [] { UserOption.Created_At },
             });
-            Assert.AreEqual(10, answer.Data.Length);
-            Assert.IsNotNull(answer.Data[0].Author);
+            Assert.AreEqual(10, answer.Count);
+            Assert.IsNotNull(answer[0].Author);
         }        
         
         [TestMethod]
@@ -179,8 +183,8 @@ namespace TwitterSharp.UnitTests
                 Limit = 10,
                 UserOptions = new [] { UserOption.Created_At },
             });
-            Assert.IsTrue(answer.Data.Length > 0);
-            Assert.IsNotNull(answer.Data[0].Author);
+            Assert.IsTrue(answer.Count > 0);
+            Assert.IsNotNull(answer[0].Author);
         }
 
         [TestMethod]
@@ -191,7 +195,7 @@ namespace TwitterSharp.UnitTests
             {
                 SinceId = "1410551383795781634"
             });
-            Assert.AreEqual(2, answer.Data.Length);
+            Assert.AreEqual(2, answer.Count);
         }
 
         [TestMethod]
@@ -202,7 +206,7 @@ namespace TwitterSharp.UnitTests
             {
                 StartTime = new DateTime(2021, 7, 1, 12, 50, 0)
             });
-            Assert.AreEqual(1, answer.Data.Length);
+            Assert.AreEqual(1, answer.Count);
         }
 
         [TestMethod]
@@ -214,8 +218,8 @@ namespace TwitterSharp.UnitTests
                 TweetOptions = new[] { TweetOption.Attachments },
                 UserOptions = Array.Empty<UserOption>()
             });
-            Assert.AreEqual(10, answer.Data.Length);
-            Assert.IsNotNull(answer.Data[0].Author);
+            Assert.AreEqual(10, answer.Count);
+            Assert.IsNotNull(answer[0].Author);
         }
 
         [TestMethod]
@@ -226,8 +230,8 @@ namespace TwitterSharp.UnitTests
             {
                 UserOptions = Array.Empty<UserOption>()
             });
-            Assert.IsTrue(answer.Data.Length == 10);
-            foreach (var t in answer.Data)
+            Assert.IsTrue(answer.Count == 10);
+            foreach (var t in answer)
             {
                 Assert.IsNotNull(t.Author);
                 Assert.AreEqual("inugamikorone", t.Author.Username);
@@ -242,7 +246,7 @@ namespace TwitterSharp.UnitTests
             {
                 Limit = 100
             });
-            Assert.IsTrue(answer.Data.Length == 100);
+            Assert.IsTrue(answer.Count == 100);
         }
 
         [TestMethod]
@@ -251,24 +255,23 @@ namespace TwitterSharp.UnitTests
             var client = new TwitterClient(Environment.GetEnvironmentVariable("TWITTER_TOKEN"));
             var answer = await client.GetTweetsFromUserIdAsync("1109748792721432577");
 
-            Assert.IsTrue(answer.Data.Length == 10);
+            Assert.IsTrue(answer.Count == 10);
 
             var nextAnswer = await answer.NextAsync();
 
-            Assert.IsTrue(nextAnswer.Data.Length == 10);
+            Assert.IsTrue(nextAnswer.Count == 10);
 
             var previousAnswer = await nextAnswer.PreviousAsync();  
 
-            Assert.IsTrue(previousAnswer.Data.Length == 10);
-            Assert.IsTrue(previousAnswer.Data[0].Id.Equals(answer.Data[0].Id));
+            Assert.IsTrue(previousAnswer.Count == 10);
+            Assert.IsTrue(previousAnswer[0].Id.Equals(answer[0].Id));
         }
 
         [TestMethod]
         public async Task GetTweetWithNothing()
         {
             var client = new TwitterClient(Environment.GetEnvironmentVariable("TWITTER_TOKEN"));
-            var answer = await client.GetTweetAsync("1390702559086596101");
-            var a = answer.Data;
+            var a = await client.GetTweetAsync("1390702559086596101");
 
             Assert.IsNull(a.Attachments);
             Assert.IsNull(a.ConversationId);
@@ -287,12 +290,11 @@ namespace TwitterSharp.UnitTests
         public async Task GetTweetWithAttachment()
         {
             var client = new TwitterClient(Environment.GetEnvironmentVariable("TWITTER_TOKEN"));
-            var answer = await client.GetTweetAsync("1481598340051914753", new TweetSearchOptions
+            var a = await client.GetTweetAsync("1481598340051914753", new TweetSearchOptions
             {
                 TweetOptions = new[] { TweetOption.Attachments },
                 MediaOptions = new[] { MediaOption.Url }
             });
-            var a = answer.Data;
 
             Assert.IsNotNull(a.Attachments);
             Assert.IsNotNull(a.Attachments.Media);
@@ -315,11 +317,10 @@ namespace TwitterSharp.UnitTests
         public async Task GetTweetWithConversationId()
         {
             var client = new TwitterClient(Environment.GetEnvironmentVariable("TWITTER_TOKEN"));
-            var answer = await client.GetTweetAsync("1390738061797953536", new TweetSearchOptions
+            var a = await client.GetTweetAsync("1390738061797953536", new TweetSearchOptions
             {
                 TweetOptions = new[] { TweetOption.Conversation_Id }
             });
-            var a = answer.Data;
 
             Assert.IsNull(a.Attachments);
             Assert.IsNotNull(a.ConversationId);
@@ -339,11 +340,10 @@ namespace TwitterSharp.UnitTests
         public async Task GetTweetWithCreatedAt()
         {
             var client = new TwitterClient(Environment.GetEnvironmentVariable("TWITTER_TOKEN"));
-            var answer = await client.GetTweetAsync("1390699421726253063", new TweetSearchOptions
+            var a = await client.GetTweetAsync("1390699421726253063", new TweetSearchOptions
             {
                 TweetOptions = new[] { TweetOption.Created_At }
             });
-            var a = answer.Data;
 
             Assert.IsNull(a.Attachments);
             Assert.IsNull(a.ConversationId);
@@ -363,11 +363,10 @@ namespace TwitterSharp.UnitTests
         public async Task GetTweetWithEntities()
         {
             var client = new TwitterClient(Environment.GetEnvironmentVariable("TWITTER_TOKEN"));
-            var answer = await client.GetTweetAsync("1390699421726253063", new TweetSearchOptions
+            var a = await client.GetTweetAsync("1390699421726253063", new TweetSearchOptions
             {
                 TweetOptions = new[] { TweetOption.Entities }
             });
-            var a = answer.Data;
 
             Assert.IsNull(a.Attachments);
             Assert.IsNull(a.ConversationId);
@@ -390,11 +389,10 @@ namespace TwitterSharp.UnitTests
         public async Task GetTweetWithInReplyToUserId()
         {
             var client = new TwitterClient(Environment.GetEnvironmentVariable("TWITTER_TOKEN"));
-            var answer = await client.GetTweetAsync("1390700491294724099", new TweetSearchOptions
+            var a = await client.GetTweetAsync("1390700491294724099", new TweetSearchOptions
             {
                 TweetOptions = new[] { TweetOption.In_Reply_To_User_Id }
             });
-            var a = answer.Data;
 
             Assert.IsNull(a.Attachments);
             Assert.IsNull(a.ConversationId);
@@ -414,11 +412,10 @@ namespace TwitterSharp.UnitTests
         public async Task GetTweetWithLang()
         {
             var client = new TwitterClient(Environment.GetEnvironmentVariable("TWITTER_TOKEN"));
-            var answer = await client.GetTweetAsync("1390766509610340354", new TweetSearchOptions
+            var a = await client.GetTweetAsync("1390766509610340354", new TweetSearchOptions
             {
                 TweetOptions = new[] { TweetOption.Lang }
             });
-            var a = answer.Data;
 
             Assert.IsNull(a.Attachments);
             Assert.IsNull(a.ConversationId);
@@ -438,11 +435,10 @@ namespace TwitterSharp.UnitTests
         public async Task GetTweetWithPossiblySensitive()
         {
             var client = new TwitterClient(Environment.GetEnvironmentVariable("TWITTER_TOKEN"));
-            var answer = await client.GetTweetAsync("1373191601154007040", new TweetSearchOptions
+            var a = await client.GetTweetAsync("1373191601154007040", new TweetSearchOptions
             {
                 TweetOptions = new[] { TweetOption.Possibly_Sensitive }
             });
-            var a = answer.Data;
 
             Assert.IsNull(a.Attachments);
             Assert.IsNull(a.ConversationId);
@@ -462,11 +458,10 @@ namespace TwitterSharp.UnitTests
         public async Task GetTweetWithPublicMetrics()
         {
             var client = new TwitterClient(Environment.GetEnvironmentVariable("TWITTER_TOKEN"));
-            var answer = await client.GetTweetAsync("1390728256148500480", new TweetSearchOptions
+            var a = await client.GetTweetAsync("1390728256148500480", new TweetSearchOptions
             {
                 TweetOptions = new[] { TweetOption.Public_Metrics }
             });
-            var a = answer.Data;
 
             Assert.IsNull(a.Attachments);
             Assert.IsNull(a.ConversationId);
@@ -488,11 +483,10 @@ namespace TwitterSharp.UnitTests
         public async Task GetTweetWithReferencedTweets()
         {
             var client = new TwitterClient(Environment.GetEnvironmentVariable("TWITTER_TOKEN"));
-            var answer = await client.GetTweetAsync("1387457640414859267", new TweetSearchOptions
+            var a = await client.GetTweetAsync("1387457640414859267", new TweetSearchOptions
             {
                 TweetOptions = new[] { TweetOption.Referenced_Tweets }
             });
-            var a = answer.Data;
 
             Assert.IsNull(a.Attachments);
             Assert.IsNull(a.ConversationId);
@@ -512,11 +506,10 @@ namespace TwitterSharp.UnitTests
         public async Task GetTweetWithReplySettings()
         {
             var client = new TwitterClient(Environment.GetEnvironmentVariable("TWITTER_TOKEN"));
-            var answer = await client.GetTweetAsync("1390650205440147457", new TweetSearchOptions
+            var a = await client.GetTweetAsync("1390650205440147457", new TweetSearchOptions
             {
                 TweetOptions = new[] { TweetOption.Reply_Settings }
             });
-            var a = answer.Data;
 
             Assert.IsNull(a.Attachments);
             Assert.IsNull(a.ConversationId);
@@ -537,11 +530,10 @@ namespace TwitterSharp.UnitTests
         public async Task GetTweetWithSource()
         {
             var client = new TwitterClient(Environment.GetEnvironmentVariable("TWITTER_TOKEN"));
-            var answer = await client.GetTweetAsync("1390650205440147457", new TweetSearchOptions
+            var a = await client.GetTweetAsync("1390650205440147457", new TweetSearchOptions
             {
                 TweetOptions = new[] { TweetOption.Source }
             });
-            var a = answer.Data;
 
             Assert.IsNull(a.Attachments);
             Assert.IsNull(a.ConversationId);
@@ -566,7 +558,7 @@ namespace TwitterSharp.UnitTests
             // note: retweets are truncated at 140 characters, so i had to exclude them for making the check reliable
             var a = await client.GetRecentTweetsAsync(Expression.Hashtag(hashtag).And(Expression.IsRetweet().Negate()));
             
-            Assert.IsTrue(a.Data.All(x => x.Text.Contains("#"+hashtag, StringComparison.InvariantCultureIgnoreCase)));
+            Assert.IsTrue(a.All(x => x.Text.Contains("#"+hashtag, StringComparison.InvariantCultureIgnoreCase)));
         }
 
         [TestMethod]

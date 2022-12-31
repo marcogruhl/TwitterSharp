@@ -12,9 +12,9 @@ namespace TwitterSharp.UnitTests
     [TestClass]
     public class TestLike
     {
-        private async Task<bool> ContainsLikeAsync(string username, Page<User[]> rUsers)
+        private async Task<bool> ContainsLikeAsync(string username, Page<User> rUsers)
         {
-            if (rUsers.Data.Any(x => x.Username == username))
+            if (rUsers.Any(x => x.Username == username))
             {
                 return true;
             }

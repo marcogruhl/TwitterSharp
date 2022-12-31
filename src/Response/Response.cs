@@ -1,8 +1,19 @@
-﻿namespace TwitterSharp.Response
+﻿using System.Collections.Generic;
+
+namespace TwitterSharp.Response
 {
-    public class Response<T>
+    public class Response<T> : List<T>
     {
-        public T Data { get; set; }
+        public Response(T data)
+        {
+            Add(data);
+        }
+
+        public Response(T[] data)
+        {
+            AddRange(data);
+        }
+
         public RateLimit RateLimit { init; get; }
     }
 }
