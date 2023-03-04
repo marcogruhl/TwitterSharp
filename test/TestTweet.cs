@@ -283,7 +283,6 @@ namespace TwitterSharp.UnitTests
             Assert.IsNull(a.PublicMetrics);
             Assert.IsNull(a.ReferencedTweets);
             Assert.IsNull(a.ReplySettings);
-            Assert.IsNull(a.Source);
         }
 
         [TestMethod]
@@ -310,7 +309,6 @@ namespace TwitterSharp.UnitTests
             Assert.IsNull(a.PublicMetrics);
             Assert.IsNull(a.ReferencedTweets);
             Assert.IsNull(a.ReplySettings);
-            Assert.IsNull(a.Source);
         }
 
         [TestMethod]
@@ -333,7 +331,6 @@ namespace TwitterSharp.UnitTests
             Assert.IsNull(a.PublicMetrics);
             Assert.IsNull(a.ReferencedTweets);
             Assert.IsNull(a.ReplySettings);
-            Assert.IsNull(a.Source);
         }
 
         [TestMethod]
@@ -356,7 +353,6 @@ namespace TwitterSharp.UnitTests
             Assert.IsNull(a.PublicMetrics);
             Assert.IsNull(a.ReferencedTweets);
             Assert.IsNull(a.ReplySettings);
-            Assert.IsNull(a.Source);
         }
 
         [TestMethod]
@@ -382,7 +378,6 @@ namespace TwitterSharp.UnitTests
             Assert.IsNull(a.PublicMetrics);
             Assert.IsNull(a.ReferencedTweets);
             Assert.IsNull(a.ReplySettings);
-            Assert.IsNull(a.Source);
         }
 
         [TestMethod]
@@ -405,7 +400,6 @@ namespace TwitterSharp.UnitTests
             Assert.IsNull(a.PublicMetrics);
             Assert.IsNull(a.ReferencedTweets);
             Assert.IsNull(a.ReplySettings);
-            Assert.IsNull(a.Source);
         }
 
         [TestMethod]
@@ -428,7 +422,6 @@ namespace TwitterSharp.UnitTests
             Assert.IsNull(a.PublicMetrics);
             Assert.IsNull(a.ReferencedTweets);
             Assert.IsNull(a.ReplySettings);
-            Assert.IsNull(a.Source);
         }
 
         [TestMethod]
@@ -451,14 +444,13 @@ namespace TwitterSharp.UnitTests
             Assert.IsNull(a.PublicMetrics);
             Assert.IsNull(a.ReferencedTweets);
             Assert.IsNull(a.ReplySettings);
-            Assert.IsNull(a.Source);
         }
 
         [TestMethod]
         public async Task GetTweetWithPublicMetrics()
         {
             var client = new TwitterClient(Environment.GetEnvironmentVariable("TWITTER_TOKEN"));
-            var a = await client.GetTweetAsync("1390728256148500480", new TweetSearchOptions
+            var a = await client.GetTweetAsync("1603823063690199040", new TweetSearchOptions
             {
                 TweetOptions = new[] { TweetOption.Public_Metrics }
             });
@@ -474,11 +466,11 @@ namespace TwitterSharp.UnitTests
             Assert.IsTrue(a.PublicMetrics.LikeCount > 0);
             Assert.IsTrue(a.PublicMetrics.ReplyCount > 0);
             Assert.IsTrue(a.PublicMetrics.RetweetCount > 0);
+            Assert.IsTrue(a.PublicMetrics.ImpressionCount > 0);
             Assert.IsNull(a.ReferencedTweets);
             Assert.IsNull(a.ReplySettings);
-            Assert.IsNull(a.Source);
         }
-
+        
         [TestMethod]
         public async Task GetTweetWithReferencedTweets()
         {
@@ -499,7 +491,6 @@ namespace TwitterSharp.UnitTests
             Assert.IsNotNull(a.ReferencedTweets);
             Assert.AreEqual("1387454731212103680", a.ReferencedTweets[0].Id);
             Assert.IsNull(a.ReplySettings);
-            Assert.IsNull(a.Source);
         }
 
         [TestMethod]
@@ -522,31 +513,6 @@ namespace TwitterSharp.UnitTests
             Assert.IsNull(a.ReferencedTweets);
             Assert.IsNotNull(a.ReplySettings);
             Assert.AreEqual(ReplySettings.Everyone, a.ReplySettings);
-            Assert.IsNull(a.Source);
-        }
-
-        // Source is empty (28.12.2022): https://twittercommunity.com/t/twitter-api-v2-no-source-field-returned/181324
-        [TestMethod]
-        public async Task GetTweetWithSource()
-        {
-            var client = new TwitterClient(Environment.GetEnvironmentVariable("TWITTER_TOKEN"));
-            var a = await client.GetTweetAsync("1390650205440147457", new TweetSearchOptions
-            {
-                TweetOptions = new[] { TweetOption.Source }
-            });
-
-            Assert.IsNull(a.Attachments);
-            Assert.IsNull(a.ConversationId);
-            Assert.IsNull(a.CreatedAt);
-            Assert.IsNull(a.Entities);
-            Assert.IsNull(a.InReplyToUserId);
-            Assert.IsNull(a.Lang);
-            Assert.IsNull(a.PossiblySensitive);
-            Assert.IsNull(a.PublicMetrics);
-            Assert.IsNull(a.ReferencedTweets);
-            Assert.IsNull(a.ReplySettings);
-            Assert.IsNotNull(a.Source);
-            Assert.AreEqual("Twitter for iPhone", a.Source);
         }
 
         [TestMethod]
@@ -624,6 +590,31 @@ namespace TwitterSharp.UnitTests
                 Assert.AreEqual("id", e.Errors.First().Parameter);
                 Assert.AreEqual("Not Found Error", e.Errors.First().Title);
             }
+        }
+        
+        [TestMethod]
+        public async Task GetTweetsEditFromTweet()
+        {
+            var client = new TwitterClient(Environment.GetEnvironmentVariable("TWITTER_TOKEN"));
+            var a = await client.GetTweetAsync("1575590534529556480", new TweetSearchOptions
+            {
+                TweetOptions = new[] { TweetOption.Edit_Controls }
+            });
+
+            Assert.IsNull(a.Attachments);
+            Assert.IsNull(a.ConversationId);
+            Assert.IsNull(a.CreatedAt);
+            Assert.IsNull(a.Entities);
+            Assert.IsNull(a.InReplyToUserId);
+            Assert.IsNull(a.Lang);
+            Assert.IsNull(a.PossiblySensitive);
+            Assert.IsNull(a.PublicMetrics);
+            Assert.IsNull(a.ReferencedTweets);
+            Assert.IsTrue(a.EditHistoryTweetIds.Length > 1);
+            Assert.IsNotNull(a.EditControls);
+            Assert.IsTrue(a.EditControls.IsEditEligible);
+            Assert.IsTrue(a.EditControls.EditsRemaining > 0);
+            Assert.IsTrue(a.EditControls.EditableUntil.Ticks == 638000835290000000);
         }
     }
 }
