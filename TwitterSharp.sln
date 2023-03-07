@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31025.194
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33424.131
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TwitterSharp", "src\TwitterSharp.csproj", "{194B217B-A4FC-458C-9891-C898FC1CC5A7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TwitterSharp.UnitTests", "test\TwitterSharp.UnitTests.csproj", "{455E01B8-9838-4D4B-A0E5-52A5F971832B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TwitterSharp.UnitTests", "test\TwitterSharp.UnitTests.csproj", "{455E01B8-9838-4D4B-A0E5-52A5F971832B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleAppOAuth2", "sample\ConsoleAppOAuth2\ConsoleAppOAuth2.csproj", "{6EE196C3-6BBD-43A6-BE51-A6022730E478}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{455E01B8-9838-4D4B-A0E5-52A5F971832B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{455E01B8-9838-4D4B-A0E5-52A5F971832B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{455E01B8-9838-4D4B-A0E5-52A5F971832B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6EE196C3-6BBD-43A6-BE51-A6022730E478}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6EE196C3-6BBD-43A6-BE51-A6022730E478}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6EE196C3-6BBD-43A6-BE51-A6022730E478}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6EE196C3-6BBD-43A6-BE51-A6022730E478}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

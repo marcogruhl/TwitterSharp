@@ -1,12 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Sockets;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -27,15 +24,6 @@ using TwitterSharp.Rule;
 
 namespace TwitterSharp.Client
 {
-    [DataContract]
-    public class AccessToken {
-        [DataMember]
-        public string token_type;
-
-        [DataMember]
-        public string access_token;
-    }
-
     /// <summary>
     /// Base client to do all your requests
     /// </summary>
@@ -65,28 +53,6 @@ namespace TwitterSharp.Client
             _jsonOptions.Converters.Add(new ReplySettingsConverter());
             _jsonOptions.Converters.Add(new MediaConverter());
         }
-
-        /// <summary>
-        /// Create a new instance of the client
-        /// </summary>
-        /// <param name="accessToken">User Access Token generated from https://developer.twitter.com/</param>
-        /// <param name="secret">User Access Token Secret generated from https://developer.twitter.com/</param></param>
-        public TwitterClient(string userKey, string userSecret, string accessToken, string accessSecret)
-        {
-            _httpClient = new();
-            // _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", bearerToken);
-
-            _jsonOptions = new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = new SnakeCaseNamingPolicy()
-            };
-            _jsonOptions.Converters.Add(new EntitiesConverter());
-            _jsonOptions.Converters.Add(new ExpressionConverter());
-            _jsonOptions.Converters.Add(new ReferencedTweetConverter());
-            _jsonOptions.Converters.Add(new ReplySettingsConverter());
-            _jsonOptions.Converters.Add(new MediaConverter());
-        }
-
 
         #region AdvancedParsing
 
@@ -388,6 +354,18 @@ namespace TwitterSharp.Client
         #endregion TweetStream
 
         #region UserSearch
+
+        /// <summary>
+        /// Gets the currently authorized user
+        /// </summary>
+        public async Task<User> GetMeAsync(UserSearchOptions options = null)
+        {
+            options ??= new();
+            var res = await _httpClient.GetAsync(_baseUrl + "users/me" + "?" + options.Build(false));
+            BuildRateLimit(res.Headers, Endpoint.GetUserMe);
+            return ParseData<User>(await res.Content.ReadAsStringAsync()).Data;
+        }
+
         /// <summary>
         /// Get an user given his username
         /// </summary>
