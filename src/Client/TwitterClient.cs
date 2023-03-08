@@ -25,7 +25,10 @@ using TwitterSharp.Rule;
 namespace TwitterSharp.Client
 {
     /// <summary>
-    /// Base client to do all your requests
+    /// Base client to do all your requests.
+    /// <exception cref="TwitterException">
+    /// All endpoint requests throw an exception if there is an error in the request.
+    /// </exception>
     /// </summary>
     public class TwitterClient : IDisposable
     {
@@ -33,6 +36,8 @@ namespace TwitterSharp.Client
 
         private readonly HttpClient _httpClient;
         private readonly JsonSerializerOptions _jsonOptions;
+
+        public event EventHandler<RateLimit> RateLimitChanged;
 
         /// <summary>
         /// Create a new instance of the client
@@ -92,6 +97,7 @@ namespace TwitterSharp.Client
         private static readonly Type _authorInterface = typeof(IHaveAuthor);
         private static readonly Type _mediaInterface = typeof(IHaveMedia);
         private static readonly Type _matchingRulesInterface = typeof(IHaveMatchingRules);
+
         private static void InternalIncludesParse<T>(Answer<T> answer)
         {
             if (answer.Includes != null)
@@ -114,6 +120,7 @@ namespace TwitterSharp.Client
                 }
             }
         }
+
         private static void InternalIncludesParse<T>(Answer<T[]> answer)
         {
             if (answer.Includes != null)
@@ -183,6 +190,8 @@ namespace TwitterSharp.Client
             {
                 rateLimit.Reset = Convert.ToInt32(reset.FirstOrDefault());
             }
+
+            RateLimitChanged?.Invoke(this, rateLimit);
 
             return rateLimit;
         }
@@ -280,7 +289,7 @@ namespace TwitterSharp.Client
 
             _tweetStreamCancellationTokenSource = new();
             var res = await _httpClient.GetAsync(_baseUrl + "tweets/search/stream?" + options.Build(true), HttpCompletionOption.ResponseHeadersRead, _tweetStreamCancellationTokenSource.Token);
-            rateLimit(BuildRateLimit(res.Headers, Endpoint.ConnectingFilteresStream)); 
+            rateLimit?.Invoke(BuildRateLimit(res.Headers, Endpoint.ConnectingFilteresStream)); 
             _reader = new(await res.Content.ReadAsStreamAsync(_tweetStreamCancellationTokenSource.Token));
 
             try
