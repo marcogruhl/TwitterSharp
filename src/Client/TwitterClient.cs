@@ -364,16 +364,6 @@ namespace TwitterSharp.Client
 
         #region UserSearch
 
-        /// <summary>
-        /// Gets the currently authorized user
-        /// </summary>
-        public async Task<User> GetMeAsync(UserSearchOptions options = null)
-        {
-            options ??= new();
-            var res = await _httpClient.GetAsync(_baseUrl + "users/me" + "?" + options.Build(false));
-            BuildRateLimit(res.Headers, Endpoint.GetUserMe);
-            return ParseData<User>(await res.Content.ReadAsStringAsync()).Data;
-        }
 
         /// <summary>
         /// Gets the currently authorized user
